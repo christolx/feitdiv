@@ -58,12 +58,12 @@ const RegisterPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center min-h-screen bg-[url(src/assets/best-movie-tv-show-watchlist-apps-track-seen-featured1.avif)] bg-cover">
             <div className='w-56 bg-[url(src/assets/kids-movies-2020-artemis-fowl-1576601149.avif)] bg-auto md:bg-contain  
-            h-96 p-10 rounded-l-3xl shadow-md border-t-8 border-b-8 border-l-1 border-solid border-yellow-950'>
+            h-96 p-10 rounded-l-3xl shadow-md border-t-8 border-b-8 border-l-1 border-solid border-black'>
                 test
             </div>
             <form
                 onSubmit={handleRegister}
-                className="border-t-8 border-b-8 border-l-1 border-solid border-yellow-950  w-80 h-96 px-10 bg-gray-100 rounded-r-3xl pt-0 pb-20 shadow-md "
+                className="border-t-8 border-b-8 border-l-1 border-solid border-black  w-80 h-96 px-10 bg-green-800 rounded-r-3xl pt-0 pb-20 shadow-md "
             >
                 <h1 className="mt-3 text-2xl font-bold mb-1 justify-self-center">Register</h1>
                 {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -121,8 +121,8 @@ const RegisterPage: React.FC = () => {
                     type="submit"
                     className={`w-full py-2 text-white rounded ${
                         isLoading
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-blue-500 hover:bg-blue-600'
+                            ? 'bg-green-400 cursor-not-allowed'
+                            : 'bg-green-400 hover:bg-green-300'
                     }`}
                     disabled={isLoading}
                 >

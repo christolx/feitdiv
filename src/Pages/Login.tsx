@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center min-h-screen bg-[url(src/assets/best-movie-tv-show-watchlist-apps-track-seen-featured1.avif)] bg-cover">
             <div></div>
-            <form onSubmit={handleLogin} className="border-t-8 border-b-8 border-l-1 border-solid border-yellow-950  w-80 h-96 p-10 bg-gray-100 rounded-l-3xl shadow-md">
+            <form onSubmit={handleLogin} className="border-t-8 border-b-8 border-l-1 border-solid border-black  w-80 h-96 p-10 bg-green-800 rounded-l-3xl shadow-md">
                 <h1 className="text-2xl font-bold mb-4 justify-self-center">Login</h1>
                 {error && <p className="text-red-500 mb-4">{error}</p>} 
                 <div className="mb-4">
@@ -85,7 +85,7 @@ const LoginPage: React.FC = () => {
                 <button
                     type="submit"
                     className={`w-80 py-2 text-white rounded ${
-                        isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+                        isLoading ? 'bg-green-400 cursor-not-allowed' : 'bg-green-400 hover:bg-green-300'
                     }`}
                     disabled={isLoading} 
                 >
@@ -98,13 +98,13 @@ const LoginPage: React.FC = () => {
 
                 <button
                     onClick={() => navigate('/register')}
-                    className="w-80 py-2 text-white rounded bg-blue-500 hover:bg-blue-600"
+                    className="w-80 py-2 text-white rounded bg-green-400 hover:bg-green-300"
                 >
                      Daftar di sini
                 </button>
             </form>
             <div className='w-56 bg-[url(src/assets/kids-movies-2020-artemis-fowl-1576601149.avif)] bg-auto md:bg-contain  
-            h-96 p-10 rounded-r-3xl shadow-md border-t-8 border-b-8 border-l-1 border-solid border-yellow-950'>
+            h-96 p-10 rounded-r-3xl shadow-md border-t-8 border-b-8 border-l-1 border-solid border-black'>
                 test
             </div>
             
