@@ -6,9 +6,11 @@ import FAQPage from "./Pages/FAQ";
 import TheatersPage from "./Pages/Theaters";
 import UpcomingPage from './Pages/Upcoming';
 import LoginPage from './Pages/Login';
-import ProtectedRoute from './Components/ProtectedRoute';
+//import ProtectedRoute from './Components/ProtectedRoute';
 import RegisterPage from './Pages/Register';
 import NowPlayingPage from './Pages/NowPlaying';
+import ReservationPage from './Pages/Reservation';
+import ShowtimesPage from './Pages/Showtimes';
 
 const App: React.FC = () => {
     return (
@@ -22,6 +24,8 @@ const App: React.FC = () => {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/nowplaying" element={<NowPlayingPage/>} />
+                <Route path="/reservation/:movie_id" element={<ReservationPage />} />
+                <Route path="/showtime/:theater_id" element={<ShowtimesPage />} />
             </Routes>
         </Router>
     );

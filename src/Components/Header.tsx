@@ -44,25 +44,25 @@ const Header: React.FC = () => {
         ))}
       </ul>
       <div className="flex items-center space-x-4">
-        {userName ? (
-          <>
-            <span className="text-green-400">{userName}</span>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          <Link
-            to="/login"
-            className="px-6 py-2 rounded-full bg-green-500 text-white hover:bg-green-400 transition-colors no-underline"
-          >
-            Login
-          </Link>
-        )}
-      </div>
+                            {userName ? (
+                                <>
+                                    <span className="text-green-400">{userName}</span>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="px-4 py-2 rounded-full border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <Link
+                                    to="/login"
+                                    className="px-6 py-2 rounded-full bg-green-500 text-white hover:bg-green-400 transition-colors no-underline"
+                                >
+                                    Login
+                                </Link>
+                            )}
+                        </div>
     </div>
   </nav>
 </header>

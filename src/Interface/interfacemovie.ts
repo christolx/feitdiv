@@ -24,4 +24,21 @@ export interface Movie {
     location: string;
     total_seats: number;
   }
+
+  export interface Showtime {
+    showtime_id: number;
+    movie_id: number;
+    theater_id: number;
+    showtime: string;
+    available_seats: number;
+    theater_name: string;
+    movie_name: string;
+  }
+  
+  export interface SeatReservation {
+    showtime_id: number;
+    seat_number: string;
+    user_id: number;
+    reservation_status: 'Reserved' | 'Available';
+  }
   
