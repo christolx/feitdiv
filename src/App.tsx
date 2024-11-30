@@ -8,6 +8,8 @@ import LoginPage from './Pages/Login';
 import ProtectedRoute from './Components/ProtectedRoute';
 import RegisterPage from './Pages/Register';
 import TestPage from './Pages/TestPage'; 
+import MyTicketPage from './Pages/MyTicketPage';
+
 
 // Import halaman baru
 import PaymentHistory from './Pages/PaymentHistory';
@@ -26,6 +28,7 @@ const App: React.FC = () => {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/payment-history" element={<PaymentHistory />} />
                 <Route path="/test" element={<TestPage />} /> 
+                <Route path="/MyTicket" element={<MyTicketPage />} />
             </Routes>
         </Router>
     );

@@ -15,8 +15,8 @@ const Testing: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-      <h1 className="text-4xl text-center font-bold py-4">Ticket Details</h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-black">
+      <h1 className="text-4xl text-center font-bold py-4 text-white">Ticket Details</h1>
 
       {/* Input untuk memasukkan ticket_id */}
       <input

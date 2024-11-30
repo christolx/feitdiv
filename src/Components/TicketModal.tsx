@@ -5,29 +5,24 @@ import PaymentModal from './PaymentModal';
 interface TicketModalProps {
   ticketId: string; // ID tiket yang diterima dari parent component
   onClose: () => void; // Fungsi untuk menutup modal
-
 }
 
 const TicketModal: React.FC<TicketModalProps> = ({ ticketId, onClose }) => {
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false)
+  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [paymentVaNumber, setPaymentVaNumber] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string>('');
 
   useEffect(() => {
-    console.log('TicketModal useEffect triggered with ticketId:', ticketId);
+    setLoading(true);
+    setError(null);
 
     if (ticketId) {
-      setLoading(true);
-      setError(null);
-      console.log('Fetching ticket data from API...');
-
-      // Mengambil data tiket berdasarkan ticket_id
       fetchWithToken(`http://localhost:3000/tickets/get-ticket/${ticketId}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log('Ticket data received:', data);
           if (data.message) {
             setError(data.message); // Menangani error jika tiket tidak ditemukan
             setTicket(null);
@@ -45,69 +40,71 @@ const TicketModal: React.FC<TicketModalProps> = ({ ticketId, onClose }) => {
   }, [ticketId]);
 
   const handlePayment = async () => {
+
     setLoading(true);
     setError(null);
+
     try {
-      // Mengirim permintaan untuk membuat transaksi
-      const response = await fetchWithToken('http://localhost:3000/transaction/create-transaction', {
+      const response = await fetchWithToken('http://localhost:3000/payments/check-ticket-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ticket_id: ticketId,
-          gross_amount: ticket.ticket_price, // Sesuaikan dengan harga tiket
-          bank: 'bca', // Misal, jika memilih bank BCA (harus dinamis berdasarkan input pengguna)
         }),
       });
-  
+
       const data = await response.json();
-      console.log('Transaction response from backend:', data);
-  
-      // Jika transaksi berhasil, kita akan mendapatkan VA number untuk pembayaran bank transfer
-      if (data.transaction?.va_numbers) {
-        const vaNumbers = data.transaction.va_numbers;
-        // Tampilkan nomor virtual account untuk pembayaran bank transfer
-        const vaNumber = vaNumbers.length > 0 ? vaNumbers[0].va_number : null;
-  
-        if (vaNumber) {
-          console.log('Received VA Number:', vaNumber);
-          setPaymentVaNumber(vaNumber);
-          setShowPaymentModal(true);
-      
-          // Tampilkan nomor VA kepada pengguna
-        } else {
-          setError('Bank transfer details not available');
-        }
-      } else if (data.transaction?.token) {
-        // Jika ada token (misalnya pembayaran menggunakan Snap)
-        const snapToken = data.transaction.token;
-        console.log('Received Snap Token:', snapToken);
-  
-        window.snap.pay(snapToken, {
-          onSuccess: function (result: any) {
-            console.log('Payment successful', result);
-            alert('Payment successful!');
-          },
-          onPending: function (result: any) {
-            console.log('Payment pending', result);
-            alert('Payment pending');
-          },
-          onError: function (result: any) {
-            console.log('Payment error', result);
-            alert('Payment error');
-          },
-          onClose: function () {
-            console.log('Payment popup closed');
-            alert('Payment popup closed');
-          },
+
+      if (response.status === 400) {
+        setError(data.message);  // Tampilkan pesan error dari backend
+        return;
+      }
+
+      if (data.message === 'Ticket is available for booking.') {
+        // Lanjutkan proses pembayaran jika tiket tersedia untuk booking
+        const paymentResponse = await fetchWithToken('http://localhost:3000/transaction/create-transaction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ticket_id: ticketId,
+            gross_amount: ticket.ticket_price,
+            bank: 'bca', // Anda bisa mengganti ini jika bank dipilih oleh pengguna
+          }),
         });
-      } else {
-        setError('Transaction failed: No valid response from backend');
+
+        if (!paymentResponse.ok) {
+          const paymentErrorMessage = `Payment Error: ${paymentResponse.status} - ${paymentResponse.statusText}`;
+          setError(paymentErrorMessage);
+          return;
+        }
+
+        const paymentData = await paymentResponse.json();
+
+        if (paymentData.order_id) {
+          setOrderId(paymentData.order_id);
+          const vaNumber = paymentData.transaction?.va_numbers?.[0]?.va_number;
+
+          if (vaNumber) {
+            setPaymentVaNumber(vaNumber);
+            setShowPaymentModal(true);
+          } else {
+            setError('Bank transfer details not available.');
+          }
+        } else {
+          setError('Transaction failed: No order_id received from backend');
+        }
       }
     } catch (error) {
-      setError('Error processing transaction: ' + (error as Error).message);
+      const errorMessage = 'Error processing transaction: ' + (error as Error).message;
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCloseError = () => {
+    setError(null); // Hapus error dan tutup modal
+    onClose(); // Panggil onClose untuk menutup modal keseluruhan
   };
 
   if (loading) {
@@ -120,90 +117,101 @@ const TicketModal: React.FC<TicketModalProps> = ({ ticketId, onClose }) => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-white p-8 rounded-lg shadow-xl text-center text-red-600">
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-      {/* Modal Container */}
-      <div className="bg-white p-6 rounded-xl shadow-2xl w-11/12 max-w-3xl text-black animate__animated animate__fadeIn animate__faster">
-        
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 font-bold text-xl"
-        >
-          {/* Icon Close (X) */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="relative bg-gray-900 rounded-3xl shadow-2xl w-11/12 max-w-3xl overflow-hidden">
+        {/* Background Image */}
+        <div className="relative">
+          <img
+            src={'src/assets/pexels-tima-miroshnichenko-7991158.jpg'}
+            alt={ticket?.movie_name || 'Movie Poster'}
+            className="w-full h-64 object-cover"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        </div>
 
-        {ticket ? (
+        {/* Modal Content */}
+        <div className="relative px-6 py-8 text-white">
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-white text-3xl font-bold"
+          >
+  
+          </button>
+
+          {/* Ticket Info */}
           <div className="space-y-6">
-            {/* Movie Title */}
-            <h2 className="text-3xl font-semibold text-center text-gray-800">
-              {ticket.movie_name}
+            <h2 className="text-4xl font-bold text-white text-center">
+              {ticket?.movie_name || 'Loading...'}
             </h2>
 
-            {/* Ticket Details */}
             <div className="space-y-4">
-              <div className="flex justify-between text-lg text-gray-700">
+              {/* Theater */}
+              <div className="flex justify-between text-lg">
                 <span className="font-semibold">Theater:</span>
-                <span>{ticket.theater_name}</span>
+                <span>{ticket?.theater_name || 'N/A'}</span>
               </div>
-              <div className="flex justify-between text-lg text-gray-700">
+
+              {/* Showtime */}
+              <div className="flex justify-between text-lg">
                 <span className="font-semibold">Showtime:</span>
-                <span>{ticket.showtime}</span>
+                <span>{ticket?.showtime || 'N/A'}</span>
               </div>
-              <div className="flex justify-between text-lg text-gray-700">
+
+              {/* Seat */}
+              <div className="flex justify-between text-lg">
                 <span className="font-semibold">Seat Number:</span>
-                <span>{ticket.seat_number}</span>
+                <span>{ticket?.seat_number || 'N/A'}</span>
               </div>
-              <div className="flex justify-between text-lg text-gray-700">
+
+              {/* Price */}
+              <div className="flex justify-between text-lg">
                 <span className="font-semibold">Ticket Price:</span>
-                <span className="text-green-600 font-semibold">${ticket.ticket_price}</span>
+                <span className="text-green-600 font-semibold">Rp{ticket?.ticket_price || 0}</span>
               </div>
-              <div className="flex justify-between text-lg text-gray-700">
+
+              {/* Status */}
+              <div className="flex justify-between text-lg">
                 <span className="font-semibold">Status:</span>
-                <span
-                  className={`font-semibold ${ticket.status === 'Paid' ? 'text-green-600' : 'text-red-600'}`}
-                >
-                  {ticket.status}
+                <span className={`font-semibold ${ticket?.status === 'Completed' ? 'text-green-600' : 'text-red-600'}`}>
+                  {ticket?.status || 'N/A'}
                 </span>
               </div>
             </div>
-
-            {/* Pay Now Button */}
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={handlePayment}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-500 transition duration-300 ease-in-out transform hover:scale-105"
-              >
-                Pay Now
-              </button>
-            </div>
           </div>
-        ) : (
-          <p className="text-center text-gray-700">No ticket details available</p>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center space-x-4 mt-8">
+            {/* Pay Now Button */}
+            <button
+              onClick={handlePayment}
+              className="px-8 py-3 bg-green-600 text-white rounded-full shadow-lg transform transition duration-300 hover:bg-green-500 hover:scale-105"
+              disabled={loading}
+            >
+              Pay Now
+            </button>
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="px-8 py-3 bg-red-600 text-white rounded-full shadow-lg transform transition duration-300 hover:bg-red-500 hover:scale-105"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+
+        {/* Error Message (Tinggi ditingkatkan) */}
+        {error && (
+          <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white text-center py-4">
+            <p className="text-sm">{error}</p>
+            <button
+              onClick={handleCloseError} // Gunakan handleCloseError untuk menutup modal dan error
+              className="mt-2 px-4 py-1 bg-red-700 text-white rounded-full text-sm"
+            >
+              Close
+            </button>
+          </div>
         )}
       </div>
 
@@ -211,6 +219,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ ticketId, onClose }) => {
       {showPaymentModal && paymentVaNumber && (
         <PaymentModal
           vaNumber={paymentVaNumber}
+          orderId={orderId}
           onClose={() => setShowPaymentModal(false)}
           isOpen={showPaymentModal}
         />
