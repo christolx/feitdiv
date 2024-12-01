@@ -7,7 +7,7 @@ const TheatersPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedCity, setSelectedCity] = useState('Alsut');
-    const navigate = useNavigate();  // Use the navigate hook
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTheaters = async () => {
@@ -38,7 +38,7 @@ const TheatersPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
             <main className="container mx-auto px-4 pt-24">
-                <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
                     Movie Theaters
                 </h1>
 

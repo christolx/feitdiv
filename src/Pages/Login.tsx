@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'
-import { fetchWithToken } from '../utils/api';
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom'
+import {fetchWithToken} from '../utils/api';
+
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -26,8 +27,8 @@ const LoginPage: React.FC = () => {
         try {
             const response = await fetch('http://localhost:3000/users/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password}),
             });
 
             if (!response.ok) {

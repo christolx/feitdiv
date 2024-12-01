@@ -9,13 +9,12 @@ const UpcomingPage: React.FC = () => {
     useEffect(() => {
         const fetchMovies = async () => {
             try {
-                const response = await fetch('http://localhost:3000/films/movies');
+                const response = await fetch('http://localhost:3000/films/movies/Upcoming');
                 if (!response.ok) {
                     throw new Error('Failed to fetch movies');
                 }
                 const data: Movie[] = await response.json();
-                const filteredMovies = data.filter((movie) => movie.status === 'Upcoming');
-                setUpcomingMovies(filteredMovies);
+                setUpcomingMovies(data);
                 setLoading(false);
             } catch (err: any) {
                 setError(err.message);
@@ -29,7 +28,7 @@ const UpcomingPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
             <main className="container mx-auto px-4 pt-24">
-                <h1 className="text-4xl font-bold mb-10 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold mb-10 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
                     Upcoming Movies
                 </h1>
 
