@@ -80,24 +80,3 @@ export const logout = async (): Promise<void> => {
         console.error('Terjadi kesalahan saat logout:', err);
     }
 };
-
-export const refreshPaymentStatus = async (orderId: string): Promise<boolean> => {
-    try {
-        const response = await fetchWithToken('http://localhost:3000/payments/RefreshStatus', {
-            method: 'POST',
-            body: JSON.stringify({ order_id: orderId }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Gagal menyegarkan status pembayaran');
-        }
-
-        const data = await response.json();
-        console.log('Status pembayaran berhasil diperbarui:', data);
-
-        return data.transaction_status;
-    } catch (error) {
-        console.error('Terjadi kesalahan saat menyegarkan status pembayaran:', error);
-        return false;
-    }
-};
