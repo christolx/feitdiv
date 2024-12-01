@@ -54,9 +54,7 @@ const UpcomingPage: React.FC = () => {
                                 <p className="text-gray-400">
                                     Release Date: {new Date(movie.release_date).toLocaleDateString()}
                                 </p>
-                                <button className="mt-4 w-full px-4 py-2 bg-green-500 rounded-full hover:bg-green-400 transition-colors">
-                                    Set Reminder
-                                </button>
+                              
                             </div>
                         </div>
                     ))}

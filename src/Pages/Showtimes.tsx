@@ -54,10 +54,6 @@ const ShowtimesPage: React.FC = () => {
                                         <p className="text-gray-400 mb-4">Available
                                             Seats: {showtime.available_seats}</p>
                                     </div>
-                                    <button
-                                        className="px-6 py-2 bg-green-500 rounded-full hover:bg-green-400 transition-colors">
-                                        Book Ticket
-                                    </button>
                                 </div>
                             </div>
                         ))

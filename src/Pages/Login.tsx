@@ -1,8 +1,11 @@
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom'
-import {fetchWithToken} from '../utils/api';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPage: React.FC = () => {
+interface LoginPageProps {
+    setUserName: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ setUserName }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -14,7 +17,6 @@ const LoginPage: React.FC = () => {
             setError('Email dan Password harus diisi.');
             return false;
         }
-
         setError('');
         return true;
     };
@@ -27,8 +29,8 @@ const LoginPage: React.FC = () => {
         try {
             const response = await fetch('http://localhost:3000/users/login', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password}),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
             });
 
             if (!response.ok) {
@@ -40,14 +42,21 @@ const LoginPage: React.FC = () => {
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.refreshToken);
 
-            const profileResponse = await fetchWithToken('http://localhost:3000/users/profile');
+            const profileResponse = await fetch('http://localhost:3000/users/profile', {
+                headers: {
+                    'Authorization': `Bearer ${data.accessToken}`
+                }
+            });
+
             if (!profileResponse.ok) {
                 throw new Error('Gagal mengambil profil pengguna.');
             }
 
             const profileData = await profileResponse.json();
-
             localStorage.setItem('userName', profileData.full_name);
+
+            // Update the userName state in the parent component
+            setUserName(profileData.full_name);
 
             navigate('/');
         } catch (err: any) {
@@ -59,10 +68,7 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-black">
-            <form
-                onSubmit={handleLogin}
-                className="bg-gray-700 w-96 p-8 rounded-lg shadow-lg"
-            >
+            <form onSubmit={handleLogin} className="bg-gray-700 w-96 p-8 rounded-lg shadow-lg">
                 <h1 className="text-3xl font-bold mb-6 text-center text-green-400">Login</h1>
 
                 {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
@@ -100,7 +106,7 @@ const LoginPage: React.FC = () => {
                 </button>
 
                 <p className="mt-6 text-center">
-                    <span className="text-gray-700 text-sm ml-20">Belum punya akun? </span>
+                    <span className="text-green-700 text-sm ml-20">Belum punya akun? </span>
                     <button
                         onClick={() => navigate('/register')}
                         className="text-green-500 font-semibold hover:underline"
@@ -110,8 +116,6 @@ const LoginPage: React.FC = () => {
                 </p>
             </form>
         </div>
-
-
     );
 };
 

@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-
+import React, { useState } from 'react';
 
 const FAQPage: React.FC = () => {
     const faqs = [
@@ -28,9 +27,8 @@ const FAQPage: React.FC = () => {
     const [openId, setOpenId] = useState<number | null>(null);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-
-            <main className="container mx-auto px-4 pt-24">
+        <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-black text-white">
+            <main className="flex-grow container mx-auto px-4 pt-24">
                 <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent text-center">
                     Frequently Asked Questions
                 </h1>
@@ -62,6 +60,8 @@ const FAQPage: React.FC = () => {
                     ))}
                 </div>
             </main>
+
+           
         </div>
     );
 };

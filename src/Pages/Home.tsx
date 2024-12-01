@@ -1,25 +1,43 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 const HomePage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const [selectedRegion, setSelectedRegion] = useState('Alsut');
+    const [regions, setRegions] = useState<string[]>([]);  // To store unique regions
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const fetchTheaters = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/theaters/get-theaters');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch theaters');
+                }
+
+                const data = await response.json();
+                const uniqueRegions = Array.from(new Set(data.map((theater: { location: string }) => theater.location)));
+                setRegions(uniqueRegions);
+            } catch (err) {
+                console.error('Error fetching theaters:', err);
+            }
+        };
+
+        fetchTheaters();
+    }, []);
+
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Use URLSearchParams to create a query string
+        
         const queryParams = new URLSearchParams({
             search: searchTerm,
             region: selectedRegion
         });
 
-        // Navigate to Now Playing page with query parameters
         navigate(`/nowplaying?${queryParams.toString()}`);
     };
-
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
@@ -77,7 +95,7 @@ const HomePage: React.FC = () => {
 
                                 {isDropdownOpen && (
                                     <div className="absolute mt-2 w-48 rounded-lg bg-gray-800 shadow-lg py-2 z-50">
-                                        {['Alsut', 'Kemanggisan', 'Malang'].map((region) => (
+                                        {regions.map((region) => (
                                             <button
                                                 key={region}
                                                 onClick={() => {

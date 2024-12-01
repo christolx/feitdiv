@@ -196,7 +196,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ticketId, onClose}) => {
                             onClick={onClose}
                             className="px-8 py-3 bg-red-600 text-white rounded-full shadow-lg transform transition duration-300 hover:bg-red-500 hover:scale-105"
                         >
-                            Close
+                            Cancel
                         </button>
                     </div>
                 </div>

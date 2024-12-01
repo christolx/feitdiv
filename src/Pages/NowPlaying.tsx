@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {useNavigate, useLocation} from 'react-router-dom';
-import {Movie, Showtime, Theater} from '../Interface/interfacemovie';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Movie, Showtime, Theater } from '../Interface/interfacemovie';
 
 const NowPlayingPage: React.FC = () => {
     const [movies, setMovies] = useState<Movie[]>([]);
-    const [showtimes, setShowtimes] = useState<Showtime[]>([]);
+    const [showtimes, setShowtimes] = useState<Showtime[]>([]); 
     const [theaters, setTheaters] = useState<Theater[]>([]);
     const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -15,7 +15,9 @@ const NowPlayingPage: React.FC = () => {
 
     const [searchQuery, setSearchQuery] = useState<string>(queryParams.get('search') || '');
     const [selectedDimension, setSelectedDimension] = useState<string>('All');
-    const [selectedRegion, setSelectedRegion] = useState<string>(queryParams.get('region') || 'Alsut');
+    const [selectedRegion, setSelectedRegion] = useState<string>(queryParams.get('region') || '');
+
+    const [regions, setRegions] = useState<string[]>([]);
 
     const navigate = useNavigate();
 
@@ -41,6 +43,9 @@ const NowPlayingPage: React.FC = () => {
                 setTheaters(theatersData);
                 setFilteredMovies(moviesData);
                 setLoading(false);
+
+                const uniqueRegions = [...new Set(theatersData.map((theater: Theater) => theater.location))];
+                setRegions(uniqueRegions); 
             } catch (err: any) {
                 setError(err.message);
                 setLoading(false);
@@ -76,7 +81,6 @@ const NowPlayingPage: React.FC = () => {
         setFilteredMovies(filtered);
     }, [searchQuery, selectedDimension, selectedRegion, movies, theaters, showtimes]);
 
-    // Function to update URL without page reload
     const updateUrlParams = (newSearchQuery?: string, newRegion?: string) => {
         const queryParams = new URLSearchParams(location.search);
 
@@ -88,8 +92,31 @@ const NowPlayingPage: React.FC = () => {
             queryParams.set('region', newRegion);
         }
 
-        // Update URL without triggering a page reload
-        navigate(`${location.pathname}?${queryParams.toString()}`, {replace: true});
+        navigate(`${location.pathname}?${queryParams.toString()}`, { replace: true });
+    };
+
+    // Image processing function
+    const processImage = (imageUrl: string): string => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.src = imageUrl;
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context?.drawImage(img, 0, 0);
+            
+            // Example processing: Apply a simple sharpening or resizing
+            // Adjust the width/height or apply any filters as needed
+            // Example: resizing to a higher resolution or sharpen filter can go here
+
+            // Convert the canvas content to a base64 string to display
+            const processedImageUrl = canvas.toDataURL();
+            return processedImageUrl;
+        };
+
+        return imageUrl; // Default to original if processing isn't done yet
     };
 
     return (
@@ -113,31 +140,19 @@ const NowPlayingPage: React.FC = () => {
                     <div className="flex space-x-4">
                         <button
                             onClick={() => setSelectedDimension('2D')}
-                            className={`px-4 py-2 rounded-full ${
-                                selectedDimension === '2D'
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-gray-800 text-gray-300'
-                            } hover:bg-green-500 hover:text-white transition-colors`}
+                            className={`px-4 py-2 rounded-full ${selectedDimension === '2D' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-300'} hover:bg-green-500 hover:text-white transition-colors`}
                         >
                             2D
                         </button>
                         <button
                             onClick={() => setSelectedDimension('3D')}
-                            className={`px-4 py-2 rounded-full ${
-                                selectedDimension === '3D'
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-gray-800 text-gray-300'
-                            } hover:bg-green-500 hover:text-white transition-colors`}
+                            className={`px-4 py-2 rounded-full ${selectedDimension === '3D' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-300'} hover:bg-green-500 hover:text-white transition-colors`}
                         >
                             3D
                         </button>
                         <button
                             onClick={() => setSelectedDimension('All')}
-                            className={`px-4 py-2 rounded-full ${
-                                selectedDimension === 'All'
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-gray-800 text-gray-300'
-                            } hover:bg-green-500 hover:text-white transition-colors`}
+                            className={`px-4 py-2 rounded-full ${selectedDimension === 'All' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-300'} hover:bg-green-500 hover:text-white transition-colors`}
                         >
                             All
                         </button>
@@ -152,9 +167,15 @@ const NowPlayingPage: React.FC = () => {
                         }}
                         className="px-4 py-2 rounded-full bg-gray-800 text-gray-300 border border-gray-700 focus:border-green-400 outline-none"
                     >
-                        <option value="Alsut">Alsut</option>
-                        <option value="Kemanggisan">Kemanggisan</option>
-                        <option value="Malang">Malang</option>
+                        {regions.length === 0 ? (
+                            <option value="">Loading regions...</option>
+                        ) : (
+                            regions.map((region) => (
+                                <option key={region} value={region}>
+                                    {region}
+                                </option>
+                            ))
+                        )}
                     </select>
                 </div>
 
@@ -178,13 +199,16 @@ const NowPlayingPage: React.FC = () => {
                                 onClick={() => navigate(`/reservation/${movie.movie_id}`)}
                             >
                                 <img
-                                    src={movie.poster_link}
+                                    src={processImage(movie.poster_link)}
                                     alt={movie.movie_name}
                                     className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
                                 />
                             </div>
                             <div className="p-4 flex-grow">
-                                <h3 className="text-lg font-semibold mb-2">{movie.movie_name}</h3>
+                            <h3 className="text-lg font-semibold mb-2 cursor-pointer"
+                                onClick={() => navigate(`/reservation/${movie.movie_id}`)}
+>                               {movie.movie_name}
+                            </h3>
                                 <p className="text-gray-400 mb-2">Rating: {movie.age_rating}</p>
                                 <p className="text-gray-400 mb-2">Duration: {movie.duration} minutes</p>
                                 <p className="text-gray-400 mb-2">Dimension: {movie.dimension}</p>

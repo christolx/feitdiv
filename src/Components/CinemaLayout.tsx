@@ -1,20 +1,23 @@
-import React, {useEffect, useState} from 'react';
-import {SeatReservation} from '../Interface/interfacemovie';
-import {fetchWithToken} from '../utils/api';
-import {useNavigate} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { SeatReservation } from '../Interface/interfacemovie';
+import { fetchWithToken } from '../utils/api';
+import { useNavigate } from 'react-router-dom';
+import TicketModal from './TicketModal';
 
 interface SeatLayoutProps {
     showtime_id: string;
     onClose: () => void;
 }
 
-const SeatLayout: React.FC<SeatLayoutProps> = ({showtime_id, onClose}) => {
+const SeatLayout: React.FC<SeatLayoutProps> = ({ showtime_id, onClose }) => {
     const [selectedSeats, setSelectedSeats] = useState<Set<string>>(new Set());
     const [reservedSeats, setReservedSeats] = useState<Set<string>>(new Set());
-    const [userId, setUserId] = useState<number | null>(null);
+    
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [groupTicketId, setGroupTicketId] = useState<number | null>(null); 
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const navigate = useNavigate();
     const rows = ['A', 'B', 'C', 'D', 'E'];
@@ -52,8 +55,7 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({showtime_id, onClose}) => {
                         .map((reservation) => reservation.seat_number)
                 );
 
-                setUserId(1);
-
+                
                 setReservedSeats(reservedSeatNumbers);
             } catch (error) {
                 console.error('Error fetching seat reservations:', error);
@@ -69,9 +71,7 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({showtime_id, onClose}) => {
     }, [showtime_id]);
 
     const handleSeatClick = (seat: string) => {
-
         if (reservedSeats.has(seat)) return;
-
 
         const updatedSeats = new Set(selectedSeats);
         if (updatedSeats.has(seat)) {
@@ -83,109 +83,108 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({showtime_id, onClose}) => {
     };
 
     const handleConfirmSelection = async () => {
-        if (!userId || selectedSeats.size === 0) return;
+      if (selectedSeats.size === 0) return;
+  
+      setIsSubmitting(true);
+      let groupTicketId: number | null = null;
+  
+      try {
+          const seatArray = Array.from(selectedSeats);
+          const reservationPayload = seatArray.map((seat) => ({
+              
+              showtime_id: parseInt(showtime_id),
+              seat_number: seat,
+              reservation_status: 'Reserved',
+          }));
+  
+          const reservationPromises = reservationPayload.map((data) =>
+              fetchWithToken('http://localhost:3000/seats/add-seat-reservation', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+              })
+          );
+  
+          const reservationResponses = await Promise.all(reservationPromises);
+  
+          if (!reservationResponses.every((response) => response.ok)) {
+              throw new Error('Failed to reserve some seats. Please try again.');
+          }
+  
+          const ticketPayload = seatArray.map((seat) => ({
+             
+              showtime_id: parseInt(showtime_id),
+              seat_number: seat,
+              ticket_price: 45000,
+              status: 'Booked',
+          }));
+  
+          const ticketPromises = ticketPayload.map((data) =>
+              fetchWithToken('http://localhost:3000/tickets/add-ticket', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+              })
+          );
+  
+          const ticketResponses = await Promise.all(ticketPromises);
+  
+          const resolvedTicketIds = await Promise.all(
+              ticketResponses.map(async (response) => {
+                  if (response.ok) {
+                      const data = await response.json();
+                      return data.ticket_id;
+                  }
+                  return null;
+              })
+          );
+  
+          const validTicketIds = resolvedTicketIds.filter((id) => id !== null);
+  
+          const groupTicketResponse = await fetchWithToken(
+              'http://localhost:3000/TicketGroup/add-group-ticket',
+              {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ ticket_id: validTicketIds }),
+              }
+          );
+  
+          if (!groupTicketResponse.ok) {
+              throw new Error('Failed to add group ticket. Please try again.');
+          }
+  
+          const groupTicketData = await groupTicketResponse.json();
+          groupTicketId = groupTicketData.data.group_ticket_id;
+          
+          setGroupTicketId(groupTicketId); 
+            setIsModalOpen(true); 
 
-        setIsSubmitting(true);
 
-        try {
-            const seatArray = Array.from(selectedSeats);
-
-
-            console.log('Selected seats:', seatArray);
-
-
-            const reservationPayload = seatArray.map((seat) => ({
-                user_id: userId,
-                showtime_id: parseInt(showtime_id),
-                seat_number: seat,
-                reservation_status: 'Reserved',
-            }));
-
-
-            console.log('Reservation payload to be sent to the API:', reservationPayload);
-
-            const reservationPromises = reservationPayload.map((data) =>
-                fetchWithToken('http://localhost:3000/seats/add-seat-reservation', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                })
-            );
-
-            const reservationResponses = await Promise.all(reservationPromises);
-
-            const allReservationsSuccessful = reservationResponses.every(
-                (response) => response.ok
-            );
-
-            if (!allReservationsSuccessful) {
-                const failedCount = reservationResponses.filter(
-                    (response) => !response.ok
-                ).length;
-                throw new Error(`Failed to reserve ${failedCount} seat(s). Please try again.`);
-            }
-
-            const ticketPayload = seatArray.map((seat) => ({
-                user_id: userId,
-                showtime_id: parseInt(showtime_id),
-                seat_number: seat,
-                ticket_price: 45000,
-                status: 'Booked',
-            }));
-
-
-            console.log('Ticket payload to be sent to the API:', ticketPayload);
-
-
-            const ticketPromises = ticketPayload.map((data) =>
-                fetchWithToken('http://localhost:3000/tickets/add-ticket', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                })
-            );
-
-            const ticketResponses = await Promise.all(ticketPromises);
-
-
-            const allTicketsBooked = ticketResponses.every((response) => response.ok);
-
-            if (allTicketsBooked) {
-                alert('Seats reserved and tickets booked successfully!');
-                setSelectedSeats(new Set());
-                onClose();
-            } else {
-                const failedCount = ticketResponses.filter(
-                    (response) => !response.ok
-                ).length;
-                alert(`Failed to book ${failedCount} ticket(s). Please try again.`);
-            }
-        } catch (error) {
-            console.error('Error confirming seat reservation and ticket booking:', error);
-            alert(error.message || 'An error occurred. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+          setSelectedSeats(new Set());
+      } catch (error) {
+          console.error('Error confirming seat reservation and ticket booking:', error);
+          alert(error.message || 'An error occurred. Please try again.');
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+  
 
     const renderSeatSection = (start: number, end: number, row: string) => {
-        return Array.from({length: end - start + 1}, (_, seatIndex) => {
+        return Array.from({ length: end - start + 1 }, (_, seatIndex) => {
             const seatNumber = `${row}${start + seatIndex}`;
             const seatColor = reservedSeats.has(seatNumber)
                 ? 'bg-red-500 cursor-not-allowed'
                 : selectedSeats.has(seatNumber)
-                    ? 'bg-green-500'
-                    : 'bg-gray-700';
+                ? 'bg-green-500'
+                : 'bg-gray-700';
 
             return (
                 <button
                     key={seatNumber}
                     className={`w-12 h-12 rounded-lg ${seatColor} 
-            hover:bg-green-600 transition-colors flex items-center justify-center`}
+                    hover:bg-green-600 transition-colors flex items-center justify-center`}
                     onClick={() => handleSeatClick(seatNumber)}
                     disabled={reservedSeats.has(seatNumber)}
                 >
@@ -226,9 +225,9 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({showtime_id, onClose}) => {
         );
     }
 
+    
     return (
-        <div
-            className="min-h-8 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col items-center p-8 relative">
+        <div className="min-h-8 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col items-center p-8 relative">
             <button
                 onClick={onClose}
                 className="absolute top-4 left-4 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded"
@@ -255,8 +254,8 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({showtime_id, onClose}) => {
                         <div className="text-white text-sm font-semibold flex flex-col gap-5 mb-3">
                             {rows.map((row) => (
                                 <span key={row} className="my-2">
-                  {row}
-                </span>
+                                    {row}
+                                </span>
                             ))}
                         </div>
                     </div>
@@ -271,17 +270,26 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({showtime_id, onClose}) => {
             </div>
 
             <div className="text-center">
-                <button
-                    onClick={handleConfirmSelection}
-                    disabled={isSubmitting || selectedSeats.size === 0}
-                    className={`px-6 py-3 rounded-lg text-lg ${
-                        isSubmitting || selectedSeats.size === 0
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                >
-                    {isSubmitting ? 'Processing...' : 'Confirm Selection'}
-                </button>
+            <button
+                onClick={handleConfirmSelection}
+                disabled={isSubmitting || selectedSeats.size === 0}
+                className={`px-6 py-3 rounded-lg text-lg ${
+                    isSubmitting || selectedSeats.size === 0
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-green-500 hover:bg-green-600'
+                }`}
+            >
+                {isSubmitting ? 'Processing...' : 'Confirm Selection'}
+            </button>
+
+                
+  
+            {isModalOpen && groupTicketId && (
+                <TicketModal
+                    ticketId={groupTicketId.toString()}
+                    onClose={() => setIsModalOpen(false)}
+                />
+            )}
             </div>
         </div>
     );
