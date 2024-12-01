@@ -19,7 +19,7 @@ const UserTickets: React.FC = () => {
 
     const fetchUserTickets = async (): Promise<void> => {
         try {
-            const response = await fetchWithToken('http://localhost:3000/tickets/tickets/user', {
+            const response = await fetchWithToken('http://localhost:3000/tickets/user', {
                 method: 'GET',
             });
 
