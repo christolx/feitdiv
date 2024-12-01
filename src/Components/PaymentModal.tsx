@@ -10,9 +10,9 @@ interface PaymentModalProps {
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ vaNumber, orderId, onClose, isOpen }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false); // For loading state
-  const [isError, setIsError] = useState<string | null>(null); // For error message
-  const [transactionStatus, setTransactionStatus] = useState<string | null>(null); // To store the payment status
+  const [isLoading, setIsLoading] = useState<boolean>(false); 
+  const [isError, setIsError] = useState<string | null>(null); 
+  const [transactionStatus, setTransactionStatus] = useState<string | null>(null); 
   
   const navigate = useNavigate();
 
@@ -24,8 +24,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ vaNumber, orderId, onClose,
 
   const checkPaymentStatus = async (orderId: string) => {
     if (isLoading) return;
-    setIsLoading(true); // Start loading
-    setIsError(null); // Reset error state
+    setIsLoading(true); 
+    setIsError(null); 
     try {
       console.log(`Memulai permintaan untuk memeriksa status pembayaran dengan orderId: ${orderId}`);
 
@@ -37,33 +37,32 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ vaNumber, orderId, onClose,
         body: JSON.stringify({ order_id: orderId }),
       });
 
-      // Log status dan body dari response untuk debugging
-      console.log('Status Response:', response.status);  // Menampilkan status HTTP
+
+      console.log('Status Response:', response.status);  
       if (response.ok) {
         const data = await response.json();
         setTransactionStatus(data.transaction_status);
-        console.log('Response Body:', data); // Menampilkan body dari response yang diterima
+        console.log('Response Body:', data); 
 
-        setTransactionStatus(data.transaction_status); // Update the status with the response
+        setTransactionStatus(data.transaction_status);
       } else {
-        // Jika response tidak ok, log error message dan status code-nya
         console.error(`API Error: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
-      // Debugging tambahan: Cek error yang terjadi
-      console.error('Terjadi error:', error); // Menampilkan error yang terjadi
+
+      console.error('Terjadi error:', error); 
 
       if (error instanceof Error) {
-        setIsError(error.message); // Set error message jika error adalah instance dari Error
+        setIsError(error.message); 
       } else {
-        setIsError('Terjadi kesalahan yang tidak terduga'); // Jika error bukan instance dari Error
+        setIsError('Terjadi kesalahan yang tidak terduga'); 
       }
     } finally {
-      setIsLoading(false); // End loading
+      setIsLoading(false); 
     }
   };
 
-  if (!isOpen) return null; // Don't render the modal if not open
+  if (!isOpen) return null; 
 
   const handleClose = () => {
     navigate('/payment-history');  

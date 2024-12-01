@@ -1,50 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { fetchWithToken } from '../utils/api'; // Import UpdatePopup
+import { fetchWithToken } from '../utils/api';
 
 interface PaymentDetails {
   order_id: string;
-  ticket_id: string;
+  seat_number: string;
   payment_method: string;
   payment_status: string;
   amount: number;
   payment_date: string;
-  va_number: string; // Tambahkan va_number pada tipe data
+  va_number: string;
 }
 
 const Payments: React.FC = () => {
   const [payments, setPayments] = useState<PaymentDetails[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [updateMessage, setUpdateMessage] = useState<string | null>(null); // State untuk pesan update
-  const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false); // State untuk visibilitas popup
+
+  const fetchPayments = async () => {
+    try {
+      const response = await fetchWithToken('http://localhost:3000/payments/payments', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Gagal mengambil data pembayaran');
+      }
+
+      const data = await response.json();
+      setPayments(data);
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak terduga');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Ambil status pembayaran saat komponen pertama kali dimuat
-    const fetchPayments = async () => {
-      try {
-        const response = await fetchWithToken('http://localhost:3000/payments/payments/', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Gagal mengambil data pembayaran');
-        }
-
-        const data = await response.json();
-        setPayments(data); // Menyimpan hasil pembayaran ke state
-      } catch (error) {
-        console.error('Error:', error);
-        setError(error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak terduga');
-      } finally {
-        setIsLoading(false); // Mengubah status loading menjadi false setelah request selesai
-      }
-    };
-
     fetchPayments();
-  }, []); // Mengambil data pembayaran saat pertama kali komponen dimuat
+  }, [payments]);
 
   const refreshPaymentStatus = async (orderId: string): Promise<string | null> => {
     try {
@@ -61,7 +58,7 @@ const Payments: React.FC = () => {
       }
 
       const data = await response.json();
-      return data.transaction_status; // Mengembalikan status transaksi yang baru
+      return data.transaction_status;
     } catch (error) {
       console.error('Error refreshing payment status:', error);
       return null;
@@ -70,44 +67,35 @@ const Payments: React.FC = () => {
 
   const handleRefreshAll = async () => {
     try {
-      setIsLoading(true); // Mulai loading
-      setUpdateMessage('Refreshing all payment statuses...'); // Menampilkan pesan loading
-      setIsPopupVisible(true); // Menampilkan popup
+      setIsLoading(true);
 
-      // Melakukan refresh status untuk semua pembayaran secara paralel
       const promises = payments.map((payment) =>
         refreshPaymentStatus(payment.order_id)
       );
 
-      // Tunggu semua promise selesai
       const updatedStatuses = await Promise.all(promises);
 
-      // Update semua status pembayaran di state
       setPayments((prevPayments) =>
         prevPayments.map((payment, index) => ({
           ...payment,
           payment_status: updatedStatuses[index] || payment.payment_status,
         }))
       );
-
-      setUpdateMessage('All payment statuses refreshed successfully!');
     } catch (error) {
-      setUpdateMessage('Failed to refresh payment statuses.');
+      console.error('Error refreshing all statuses:', error);
     } finally {
-      setIsLoading(false); // Selesai loading
-      setTimeout(() => setIsPopupVisible(false), 1500); // Popup akan menghilang setelah 1.5 detik
+      setIsLoading(false);
     }
   };
 
-  // Fungsi untuk mengubah warna teks status berdasarkan status pembayaran
   const getStatusTextColor = (status: string) => {
     switch (status) {
       case 'settlement':
-        return 'text-green-500'; // Hijau untuk status settlement
+        return 'text-green-500';
       case 'pending':
-        return 'text-orange-500'; // Oranye untuk status pending
+        return 'text-orange-500';
       default:
-        return 'text-red-500'; // Merah untuk status lainnya
+        return 'text-red-500';
     }
   };
 
@@ -115,7 +103,7 @@ const Payments: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-t from-gray-900 to-black py-8">
       <div className="container mx-auto px-6 lg:px-12">
         <h2 className="text-4xl font-bold text-center text-white mb-8">Payment History</h2>
-  
+
         <div className="flex justify-center mb-6">
           <button
             onClick={handleRefreshAll}
@@ -125,7 +113,7 @@ const Payments: React.FC = () => {
             {isLoading ? 'Refreshing...' : 'Refresh All Statuses'}
           </button>
         </div>
-  
+
         {isLoading ? (
           <div className="text-center text-gray-400">Loading...</div>
         ) : error ? (
@@ -145,31 +133,23 @@ const Payments: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {payments.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center text-gray-500 py-4">
-                      No payments found.
+                {payments.map((payment) => (
+                  <tr
+                    key={payment.order_id}
+                    className="bg-gradient-to-r from-gray-700 to-gray-800 hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 hover:scale-[1.03] hover:shadow-2xl transition-all duration-300 transform"
+                    style={{ transformOrigin: 'center' }}
+                  >
+                    <td className="px-6 py-4 border-b-2 border-gray-600 rounded-l-lg">{payment.order_id}</td>
+                    <td className="px-6 py-4 border-b-2 border-gray-600">{payment.seat_number}</td>
+                    <td className="px-6 py-4 border-b-2 border-gray-600">{payment.payment_method}</td>
+                    <td className={`px-6 py-4 border-b-2 border-gray-600 ${getStatusTextColor(payment.payment_status)}`}>
+                      {payment.payment_status}
                     </td>
+                    <td className="px-6 py-4 border-b-2 border-gray-600">Rp {payment.amount}</td>
+                    <td className="px-6 py-4 border-b-2 border-gray-600">{payment.va_number}</td>
+                    <td className="px-6 py-4 border-b-2 border-gray-600 rounded-r-lg">{payment.payment_date || '-'}</td>
                   </tr>
-                ) : (
-                  payments.map((payment) => (
-                    <tr
-                      key={payment.order_id}
-                      className="bg-gradient-to-r from-gray-700 to-gray-800 hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 hover:scale-[1.03] hover:shadow-2xl transition-all duration-300 transform"
-                      style={{ transformOrigin: 'center' }} // Ensure zoom happens from the center
-                    >
-                      <td className="px-6 py-4 border-b-2 border-gray-600 rounded-l-lg">{payment.order_id}</td>
-                      <td className="px-6 py-4 border-b-2 border-gray-600">{payment.ticket_id}</td>
-                      <td className="px-6 py-4 border-b-2 border-gray-600">{payment.payment_method}</td>
-                      <td className={`px-6 py-4 border-b-2 border-gray-600 ${getStatusTextColor(payment.payment_status)}`}>
-                        {payment.payment_status}
-                      </td>
-                      <td className="px-6 py-4 border-b-2 border-gray-600">Rp{payment.amount}</td>
-                      <td className="px-6 py-4 border-b-2 border-gray-600">{payment.va_number}</td>
-                      <td className="px-6 py-4 border-b-2 border-gray-600 rounded-r-lg">{payment.payment_date || '-'}</td>
-                    </tr>
-                  ))
-                )}
+                ))}
               </tbody>
             </table>
           </div>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { fetchWithToken } from '../utils/api'; // Fungsi fetch yang sudah Anda buat
+import { fetchWithToken } from '../utils/api'; 
 import PaymentModal from './PaymentModal';
 
 interface TicketModalProps {
-  ticketId: string; // ID tiket yang diterima dari parent component
-  onClose: () => void; // Fungsi untuk menutup modal
+  ticketId: string; 
+  onClose: () => void; 
 }
 
 const TicketModal: React.FC<TicketModalProps> = ({ ticketId, onClose }) => {
@@ -20,14 +20,14 @@ const TicketModal: React.FC<TicketModalProps> = ({ ticketId, onClose }) => {
     setError(null);
 
     if (ticketId) {
-      fetchWithToken(`http://localhost:3000/tickets/get-ticket/${ticketId}`)
+      fetchWithToken(`http://localhost:3000/TicketGroup/get-group-ticket/${ticketId}`)
         .then((response) => response.json())
         .then((data) => {
           if (data.message) {
-            setError(data.message); // Menangani error jika tiket tidak ditemukan
+            setError(data.message);
             setTicket(null);
           } else {
-            setTicket(data); // Menyimpan data tiket yang ditemukan
+            setTicket(data);
           }
           setLoading(false);
         })
@@ -56,19 +56,18 @@ const TicketModal: React.FC<TicketModalProps> = ({ ticketId, onClose }) => {
       const data = await response.json();
 
       if (response.status === 400) {
-        setError(data.message);  // Tampilkan pesan error dari backend
+        setError(data.message);  
         return;
       }
 
       if (data.message === 'Ticket is available for booking.') {
-        // Lanjutkan proses pembayaran jika tiket tersedia untuk booking
         const paymentResponse = await fetchWithToken('http://localhost:3000/transaction/create-transaction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ticket_id: ticketId,
             gross_amount: ticket.ticket_price,
-            bank: 'bca', // Anda bisa mengganti ini jika bank dipilih oleh pengguna
+            bank: 'bca', 
           }),
         });
 
