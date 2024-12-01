@@ -1,13 +1,14 @@
-export const fetchWithToken = async (url: string, options: RequestInit = {}): Promise<Response> => { 
+export const fetchWithToken = async (url: string, options: RequestInit = {}): Promise<Response> => {
     const accessToken = localStorage.getItem('accessToken');
 
     if (!accessToken) {
         throw new Error('No access token found');
     }
 
+
     const headers = {
         ...options.headers,
-        Authorization: `Bearer ${accessToken}`, 
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
     };
 
@@ -16,17 +17,18 @@ export const fetchWithToken = async (url: string, options: RequestInit = {}): Pr
     if (response.status === 403) {
         const refreshed = await refreshToken();
         if (refreshed) {
-            return fetchWithToken(url, options); 
+            return fetchWithToken(url, options);
         } else {
             throw new Error('Unauthorized');
         }
     }
 
-    return response; 
+    return response;
 };
 
-const refreshToken = async (): Promise<boolean> => { 
+const refreshToken = async (): Promise<boolean> => {
     const token = localStorage.getItem('refreshToken');
+
     if (!token) {
         console.error('No refresh token found in localStorage');
         return false
@@ -38,14 +40,13 @@ const refreshToken = async (): Promise<boolean> => {
         body: JSON.stringify({ token }),
     });
 
-
     if (!response.ok) {
         console.error('Failed to refresh token, response not ok');
         return false
     }
 
     const data = await response.json();
-    localStorage.setItem('accessToken', data.accessToken); 
+    localStorage.setItem('accessToken', data.accessToken);
     return true;
 };
 
@@ -84,7 +85,7 @@ export const refreshPaymentStatus = async (orderId: string): Promise<boolean> =>
     try {
         const response = await fetchWithToken('http://localhost:3000/payments/RefreshStatus', {
             method: 'POST',
-            body: JSON.stringify({ order_id: orderId }), 
+            body: JSON.stringify({ order_id: orderId }),
         });
 
         if (!response.ok) {
@@ -94,10 +95,9 @@ export const refreshPaymentStatus = async (orderId: string): Promise<boolean> =>
         const data = await response.json();
         console.log('Status pembayaran berhasil diperbarui:', data);
 
-        return data.transaction_status; 
+        return data.transaction_status;
     } catch (error) {
         console.error('Terjadi kesalahan saat menyegarkan status pembayaran:', error);
         return false;
     }
 };
-
