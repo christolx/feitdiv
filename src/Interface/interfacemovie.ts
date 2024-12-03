@@ -62,4 +62,12 @@ export interface Ticket {
   ticket_price: number;
 }
 
-  
+export interface MovieDetailsProps {
+  title: string;
+  posterUrl: string;
+  genre: string[];
+  producer: string;
+  director: string;
+  youtubeEmbedLink: string;
+  synopsis: string;
+}

@@ -12,7 +12,7 @@ import NowPlayingPage from './Pages/NowPlaying';
 import ReservationPage from './Pages/Reservation';
 import ShowtimesPage from './Pages/Showtimes';
 import PaymentHistory from './Pages/PaymentHistory.tsx';
-import TestPage from './Pages/TestPage.tsx';
+import MovieDetails from './Pages/MovieDetails.tsx';
 import MyTicketPage from './Pages/MyTicketPage.tsx';
 import ProtectedRoute from './Components/ProtectedRoute';
 
@@ -34,7 +34,8 @@ const App: React.FC = () => {
         <Route path="/showtime/:theater_id" element={<ShowtimesPage />} />
         <Route path="/paymenthistory" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
         <Route path="/mytickets" element={<ProtectedRoute><MyTicketPage /></ProtectedRoute>} />
-        <Route path="/test" element={<TestPage />} />
+        <Route path="/moviedetails" element={<MovieDetails />} />
+
       </Routes>
       <Footer />
     </Router>

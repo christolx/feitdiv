@@ -28,7 +28,7 @@ const UpcomingPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
             <main className="container mx-auto px-4 pt-10 pb-20">
-                <h1 className="text-center text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+                <h1 className="text-center text-4xl font-bold mb-8 text-white">
                     Upcoming Movies
                 </h1>
 
@@ -41,7 +41,7 @@ const UpcomingPage: React.FC = () => {
                             key={movie.movie_id}
                             className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
                         >
-                            {/* Movie Poster */}
+                          
                             <div className="relative w-full cursor-pointer" style={{ paddingBottom: '150%' }}>
                                 <img
                                     src={movie.poster_link}
