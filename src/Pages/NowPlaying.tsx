@@ -115,7 +115,7 @@ const NowPlayingPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
             <main className="container mx-auto px-4 pt-5 pb-20">
-                {/* Search input */}
+              
                 <div className="flex justify-center mb-8">
                     <input
                         type="text"

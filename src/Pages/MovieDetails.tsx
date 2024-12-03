@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { MovieDetailsProps } from '../Interface/interfacemovie';
 
 const MovieDetails: React.FC = () => {
     const location = useLocation();
-    const { movie_id } = useParams<{ movie_id: string }>(); // Get movie_id from URL parameters
-    const { selectedRegion } = location.state as { selectedRegion: string }; // Extract selectedRegion from location.state
-
-    // Log movie_id to the console
-    console.log("Received movie_id:", movie_id);
+    const { movie_id } = useParams<{ movie_id: string }>();
+    const navigate = useNavigate();
+    
+    // Destructure location state, with a fallback to undefined values if location.state is null
+    const { movie, selectedRegion } = location.state as {
+        movie: Partial<MovieDetailsProps>;
+        selectedRegion: string;
+    } || {};
 
     const [apiMovieDetails, setApiMovieDetails] = useState<MovieDetailsProps | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -29,15 +32,15 @@ const MovieDetails: React.FC = () => {
                 }
 
                 const data = await response.json();
-
+                
                 const mappedData: MovieDetailsProps = {
-                    title: data.movie_name || 'Untitled',
-                    posterUrl: data.poster_link || 'default-poster-url.jpg', // Provide a default image URL
-                    genre: data.genre?.length ? data.genre : ['No genre available'],
-                    producer: data.producer || 'Unknown',
-                    director: data.director || 'Unknown',
-                    youtubeEmbedLink: data.trailer_link || '',
-                    synopsis: data.synopsis || 'No synopsis available.',
+                    title: data.movie_name || movie?.title || 'Untitled',
+                    posterUrl: data.poster_link || movie?.posterUrl || 'default-poster-url.jpg', 
+                    genre: data.genre?.length ? data.genre : movie?.genre || ['No genre available'],
+                    producer: data.producer || movie?.producer || 'Unknown',
+                    director: data.director || movie?.director || 'Unknown',
+                    youtubeEmbedLink: data.trailer_link || movie?.youtubeEmbedLink || '',
+                    synopsis: data.synopsis || movie?.synopsis || 'No synopsis available.',
                 };
 
                 setApiMovieDetails(mappedData);
@@ -49,7 +52,13 @@ const MovieDetails: React.FC = () => {
         };
 
         fetchMovieDetails();
-    }, [movie_id]);
+    }, [movie_id, movie]);
+
+    const handleBookNow = () => {
+        if (selectedRegion) {
+            navigate(`/reservation/${movie_id}?region=${selectedRegion}`);
+        }
+    };
 
     return (
         <div className="min-h-screen mx-auto p-6 bg-gradient-to-b from-gray-900 to-black pb-20">
@@ -83,7 +92,7 @@ const MovieDetails: React.FC = () => {
                             <div className="space-y-2">
                                 <div className="flex items-center">
                                     <span className="font-semibold mr-2 text-white">Region:</span>
-                                    <span className="text-gray-300">{selectedRegion}</span>
+                                    <span className="text-gray-300">{selectedRegion || 'N/A'}</span>
                                 </div>
                                 <div className="flex items-center">
                                     <span className="font-semibold mr-2 text-white">Genre:</span>
@@ -91,7 +100,7 @@ const MovieDetails: React.FC = () => {
                                         {apiMovieDetails.genre.map((genre, index) => (
                                             <span
                                                 key={index}
-                                                className="bg-green-100 text-green-800 px-2 py -1 rounded-full text-sm"
+                                                className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm"
                                             >
                                                 {genre}
                                             </span>
@@ -111,11 +120,16 @@ const MovieDetails: React.FC = () => {
                                 <h2 className="text-xl font-semibold mb-2 text-white">Synopsis</h2>
                                 <p className="text-gray-300 leading-relaxed">{apiMovieDetails.synopsis}</p>
                             </div>
-                            <div className="flex space-x-4 mt-4">
-                                <button className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-400 transition">
-                                    Book Now
-                                </button>
-                            </div>
+                            {location.state && selectedRegion && (
+                                <div className="flex space-x-4 mt-4">
+                                    <button
+                                        onClick={handleBookNow}
+                                        className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-400 transition"
+                                    >
+                                        Book Now
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </>

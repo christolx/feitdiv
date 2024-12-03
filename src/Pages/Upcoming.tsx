@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Movie } from '../Interface/interfacemovie';
 
 const UpcomingPage: React.FC = () => {
     const [upcomingMovies, setUpcomingMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -25,6 +27,11 @@ const UpcomingPage: React.FC = () => {
         fetchMovies();
     }, []);
 
+    
+    const handleMovieClick = (movieId: number) => {
+        navigate(`/moviedetails/${movieId}`);
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
             <main className="container mx-auto px-4 pt-10 pb-20">
@@ -40,8 +47,8 @@ const UpcomingPage: React.FC = () => {
                         <div
                             key={movie.movie_id}
                             className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
+                            onClick={() => handleMovieClick(movie.movie_id)} 
                         >
-                          
                             <div className="relative w-full cursor-pointer" style={{ paddingBottom: '150%' }}>
                                 <img
                                     src={movie.poster_link}
@@ -49,26 +56,20 @@ const UpcomingPage: React.FC = () => {
                                     className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
                                 />
 
-                               
                                 <div className="absolute top-2 left-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
                                     Rating: {movie.age_rating}
                                 </div>
 
-                               
                                 <div className="absolute top-2 right-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
                                     {movie.dimension || 'N/A'}
                                 </div>
                             </div>
 
-                        
                             <div className="p-4 text-center">
-                                <h3
-                                    className="text-lg font-semibold cursor-pointer text-gray-200 hover:text-white"
-                                >
+                                <h3 className="text-lg font-semibold cursor-pointer text-gray-200 hover:text-white">
                                     {movie.movie_name}
                                 </h3>
 
-                           
                                 <p className="text-gray-400 mt-2">
                                     {new Date(movie.release_date).toLocaleDateString()}
                                 </p>

@@ -9,6 +9,15 @@ export default {
       fontFamily: {
         jaro: ['Jaro', 'sans-serif'],  
       },
+      animation: {
+        typing: 'typing 2s steps(25)',
+      },
+      keyframes: {
+        typing: {
+          '0%': { width: '0' },
+          '100%': { width: '25ch' }, 
+        },
+      },
     },
   },
   plugins: [],
@@ -16,3 +25,4 @@ export default {
     preflight: true,
   },
 };
+
