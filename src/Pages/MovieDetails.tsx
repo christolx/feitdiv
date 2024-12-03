@@ -4,13 +4,8 @@ import { MovieDetailsProps } from '../Interface/interfacemovie';
 
 const MovieDetails: React.FC = () => {
     const location = useLocation();
-    const { movie_id } = useParams<{ movie_id: string }>();
-    
-    // Extracting movie and selectedRegion from location.state
-    const { movie, selectedRegion } = location.state as {
-        movie: Partial<MovieDetailsProps>;
-        selectedRegion: string;
-    };
+    const { movie_id } = useParams<{ movie_id: string }>(); // Get movie_id from URL parameters
+    const { selectedRegion } = location.state as { selectedRegion: string }; // Extract selectedRegion from location.state
 
     // Log movie_id to the console
     console.log("Received movie_id:", movie_id);
@@ -28,21 +23,21 @@ const MovieDetails: React.FC = () => {
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/movie-details/${movie_id}`);
+                const response = await fetch(`http://localhost:3000/films/movie-details/${movie_id}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch movie details');
                 }
 
                 const data = await response.json();
-                
+
                 const mappedData: MovieDetailsProps = {
-                    title: data.movie_name || movie.title || 'Untitled',
-                    posterUrl: data.poster_link || movie.posterUrl || 'default-poster-url.jpg', // Provide a default image URL
-                    genre: data.genre?.length ? data.genre : movie.genre || ['No genre available'],
-                    producer: data.producer || movie.producer || 'Unknown',
-                    director: data.director || movie.director || 'Unknown',
-                    youtubeEmbedLink: data.trailer_link || movie.youtubeEmbedLink || '',
-                    synopsis: data.synopsis || movie.synopsis || 'No synopsis available.',
+                    title: data.movie_name || 'Untitled',
+                    posterUrl: data.poster_link || 'default-poster-url.jpg', // Provide a default image URL
+                    genre: data.genre?.length ? data.genre : ['No genre available'],
+                    producer: data.producer || 'Unknown',
+                    director: data.director || 'Unknown',
+                    youtubeEmbedLink: data.trailer_link || '',
+                    synopsis: data.synopsis || 'No synopsis available.',
                 };
 
                 setApiMovieDetails(mappedData);
@@ -54,7 +49,7 @@ const MovieDetails: React.FC = () => {
         };
 
         fetchMovieDetails();
-    }, [movie_id, movie]);
+    }, [movie_id]);
 
     return (
         <div className="min-h-screen mx-auto p-6 bg-gradient-to-b from-gray-900 to-black pb-20">
@@ -96,7 +91,7 @@ const MovieDetails: React.FC = () => {
                                         {apiMovieDetails.genre.map((genre, index) => (
                                             <span
                                                 key={index}
-                                                className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm"
+                                                className="bg-green-100 text-green-800 px-2 py -1 rounded-full text-sm"
                                             >
                                                 {genre}
                                             </span>

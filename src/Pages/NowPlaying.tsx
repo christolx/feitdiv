@@ -190,8 +190,7 @@ const NowPlayingPage: React.FC = () => {
                                 onClick={() =>
                                     navigate(`/moviedetails/${movie.movie_id}`, {
                                         state: {
-                                            movie,  
-                                            selectedRegion,
+                                            selectedRegion
                                         },
                                     })
                                 }
