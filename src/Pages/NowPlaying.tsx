@@ -49,6 +49,8 @@ const NowPlayingPage: React.FC = () => {
 
                 const uniqueRegions = [...new Set(theatersData.map((theater: Theater) => theater.location))];
                 setRegions(uniqueRegions);
+                setSelectedRegion(theatersData[0].location);
+                updateUrlParams(undefined, theatersData[0].location);
 
                 applyFilters(moviesData, showtimesData, theatersData);
 
@@ -157,7 +159,6 @@ const NowPlayingPage: React.FC = () => {
                         }}
                         className="px-4 py-2 rounded-full bg-gray-800 text-gray-300 border border-gray-700 focus:border-green-400 outline-none"
                     >
-                        <option value="">Choose your Region</option>
                         {regions.map((region) => (
                             <option key={region} value={region}>
                                 {region}
