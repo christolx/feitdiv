@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { fetchWithToken } from '../utils/api';
-import { PaymentDetails } from '../Interface/interfacemovie';
-import { useNavigate } from 'react-router-dom';
+
+interface PaymentDetails {
+    ticket_id : number;
+    order_id: string;
+    seat_number: string;
+    payment_method: string;
+    payment_status: string;
+    amount: number;
+    payment_date: string;
+    va_number: string;
+}
 
 const Payments: React.FC = () => {
     const [payments, setPayments] = useState<PaymentDetails[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
 
     const fetchPayments = async () => {
-        const token = localStorage.getItem('accessToken');
-        
-        if (!token) {
-            navigate('/login'); 
-            return;
-        }
-
         try {
             const response = await fetchWithToken('http://localhost:3000/payments/payments', {
                 method: 'GET',
@@ -26,17 +27,10 @@ const Payments: React.FC = () => {
             });
 
             if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('Anda belum mempunyai riwayat pembayaran');
-                }
                 throw new Error('Gagal mengambil data pembayaran');
             }
 
             const data = await response.json();
-            if (data.length === 0) {
-                throw new Error('Anda belum mempunyai riwayat pembayaran');
-            }
-
             setPayments(data);
         } catch (error) {
             console.error('Error:', error);
@@ -48,7 +42,7 @@ const Payments: React.FC = () => {
 
     useEffect(() => {
         fetchPayments();
-    }, []);
+    }, [payments]);
 
     const refreshPaymentStatus = async (orderId: string): Promise<string | null> => {
         try {
@@ -95,6 +89,24 @@ const Payments: React.FC = () => {
         }
     };
 
+    const handleCancel = async (ticketId: number) => {
+        try {
+            const response = await fetchWithToken(`http://localhost:3000/TicketGroup/delete-group-ticket/${ticketId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Gagal menghapus group ticket');
+            }
+
+            setPayments((prevPayments) => prevPayments.filter((payment) => payment.ticket_id !== ticketId));
+
+        } catch (error) {
+            console.error('Error canceling ticket:', error);
+            setError(error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak terduga');
+        }
+    };
+
     const getStatusTextColor = (status: string) => {
         switch (status) {
             case 'settlement':
@@ -109,7 +121,7 @@ const Payments: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-t from-gray-900 to-black py-8">
             <div className="container mx-auto px-6 lg:px-12">
-                <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-green-400 to-blue-500 mb-8 bg-clip-text text-transparent">Payment History</h2>
+                <h2 className="text-4xl font-bold text-center text-white mb-8">Payment History</h2>
 
                 <div className="flex justify-center mb-6">
                     <button
@@ -126,13 +138,12 @@ const Payments: React.FC = () => {
                 ) : error ? (
                     <div className="text-center text-red-600">{error}</div>
                 ) : (
-                    <div
-                        className="overflow-x-auto bg-gradient-to-t from-gray-800 to-gray-900 p-6 rounded-lg shadow-xl">
+                    <div className="overflow-x-auto bg-gradient-to-t from-gray-800 to-gray-900 p-6 rounded-lg shadow-xl">
                         <table className="min-w-full table-auto text-white rounded-lg">
                             <thead>
                             <tr className="bg-gradient-to-r from-gray-800 to-gray-900 text-left">
                                 <th className="px-6 py-3 text-lg font-semibold">Order ID</th>
-                                <th className="px-6 py-3 text-lg font-semibold">Ticket ID</th>
+                                <th className="px-6 py-3 text-lg font-semibold">Seat Number</th>
                                 <th className="px-6 py-3 text-lg font-semibold">Payment Method</th>
                                 <th className="px-6 py-3 text-lg font-semibold">Status</th>
                                 <th className="px-6 py-3 text-lg font-semibold">Amount</th>
@@ -155,7 +166,29 @@ const Payments: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4 border-b-2 border-gray-600">Rp {payment.amount}</td>
                                     <td className="px-6 py-4 border-b-2 border-gray-600">{payment.va_number}</td>
-                                    <td className="px-6 py-4 border-b-2 border-gray-600 rounded-r-lg">{payment.payment_date || '-'}</td>
+                                    <td className="px-6 py-4 border-b-2 border-gray-600 rounded-r-lg">
+                                        {payment.payment_date
+                                            ? new Date(payment.payment_date)
+                                                .toISOString()
+                                                .replace('T', ' ')
+                                                .replace('Z', '')
+                                            : '-'}
+                                    </td>
+
+                                    <td className="px-6 py-4 border-b-2 border-gray-600">
+                                        <button
+                                            onClick={() => handleCancel(payment.ticket_id)}
+                                            className={`px-4 py-2 rounded-lg shadow-lg transition duration-300 ${
+                                                payment.payment_status !== 'settlement'
+                                                    ? 'bg-red-600 text-white hover:bg-red-700'
+                                                    : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                            }`}
+                                            disabled={payment.payment_status === 'settlement'}
+                                        >
+                                            {payment.payment_status === 'settlement' ? 'Settled' : 'Cancel'}
+                                        </button>
+                                    </td>
+
                                 </tr>
                             ))}
                             </tbody>
