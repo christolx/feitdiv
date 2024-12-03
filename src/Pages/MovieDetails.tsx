@@ -7,7 +7,7 @@ const MovieDetails: React.FC = () => {
     const { movie_id } = useParams<{ movie_id: string }>();
     const navigate = useNavigate();
     
-    // Destructure location state, with a fallback to undefined values if location.state is null
+    
     const { movie, selectedRegion } = location.state as {
         movie: Partial<MovieDetailsProps>;
         selectedRegion: string;
