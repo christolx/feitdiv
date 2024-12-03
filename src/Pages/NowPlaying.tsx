@@ -61,7 +61,6 @@ const NowPlayingPage: React.FC = () => {
         fetchData();
     }, []); 
 
-    
     const applyFilters = (
         moviesData: Movie[],
         showtimesData: Showtime[],
@@ -69,19 +68,19 @@ const NowPlayingPage: React.FC = () => {
     ) => {
         let filtered = moviesData;
 
-      
+        
         if (searchQuery) {
             filtered = filtered.filter((movie) =>
                 movie.movie_name.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
-        
+       
         if (selectedDimension !== 'All') {
             filtered = filtered.filter((movie) => movie.dimension === selectedDimension);
         }
 
-        
+       
         if (selectedRegion) {
             const regionTheaters = theatersData.filter((theater) => theater.location === selectedRegion);
             const regionTheaterIds = regionTheaters.map((theater) => theater.theater_id);
@@ -96,7 +95,6 @@ const NowPlayingPage: React.FC = () => {
     };
 
     useEffect(() => {
-        
         applyFilters(movies, showtimes, theaters);
     }, [searchQuery, selectedDimension, selectedRegion, movies, theaters, showtimes]);
 
@@ -117,6 +115,7 @@ const NowPlayingPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
             <main className="container mx-auto px-4 pt-5 pb-20">
+                {/* Search input */}
                 <div className="flex justify-center mb-8">
                     <input
                         type="text"
@@ -131,6 +130,7 @@ const NowPlayingPage: React.FC = () => {
                     />
                 </div>
 
+                {/* Filter buttons */}
                 <div className="flex justify-center space-x-8 mb-8">
                     <div className="flex space-x-4">
                         {dimensions.map((dimension) => (
@@ -157,65 +157,67 @@ const NowPlayingPage: React.FC = () => {
                         }}
                         className="px-4 py-2 rounded-full bg-gray-800 text-gray-300 border border-gray-700 focus:border-green-400 outline-none"
                     >
-                        <option value="">Choose your Region</option> {/* Added default option */}
+                        <option value="">Choose your Region</option>
                         {regions.map((region) => (
                             <option key={region} value={region}>
                                 {region}
                             </option>
                         ))}
                     </select>
-
                 </div>
+
 
                 {loading && <p className="text-center text-gray-300">Loading movies...</p>}
                 {error && <p className="text-center text-red-500">{error}</p>}
 
+               
                 {filteredMovies.length === 0 && !loading && (
                     <div className="text-center text-gray-400 mt-10">
                         No movies found matching your search criteria.
                     </div>
                 )}
 
+                
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                     {filteredMovies.map((movie) => (
                         <div
-                        key={movie.movie_id}
-                        className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
-                    >
-                        <div
-                            className="relative w-full cursor-pointer"
-                            style={{ paddingBottom: '150%' }}
-                            onClick={() =>
-                                navigate(`/moviedetails`, {
-                                    state: {
-                                        movie,
-                                        selectedRegion,
-                                    },
-                                })
-                            }
+                            key={movie.movie_id}
+                            className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
                         >
-                            <img
-                                src={movie.poster_link}
-                                alt={movie.movie_name}
-                                className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
-                            />
+                            <div
+                                className="relative w-full cursor-pointer"
+                                style={{ paddingBottom: '150%' }}
+                                onClick={() =>
+                                    navigate(`/moviedetails/${movie.movie_id}`, {
+                                        state: {
+                                            movie,  
+                                            selectedRegion,
+                                        },
+                                    })
+                                }
+                            >
+                                <img
+                                    src={movie.poster_link}
+                                    alt={movie.movie_name}
+                                    className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                                />
 
-                            <div className="absolute top-2 left-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
-                                {movie.age_rating}
+                                <div className="absolute top-2 left-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                    {movie.age_rating}
+                                </div>
+
+                                <div className="absolute top-2 right-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                    {movie.dimension}
+                                </div>
                             </div>
 
-                            <div className="absolute top-2 right-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
-                                {movie.dimension}
-                            </div>
-                        </div>
-
-                        <div className="p-4 flex-grow text-center">
+                            <div className="p-4 flex-grow text-center">
                             <h3
                                 className="text-lg font-semibold cursor-pointer text-gray-200 hover:text-white"
                                 onClick={() =>
-                                    navigate(`/moviedetails`, {
+                                    navigate(`/moviedetails/${movie.movie_id}`, {
                                         state: {
-                                            movie,
+                                            movie,  
                                             selectedRegion,
                                         },
                                     })
@@ -223,9 +225,9 @@ const NowPlayingPage: React.FC = () => {
                             >
                                 {movie.movie_name}
                             </h3>
+                                  
+                            </div>
                         </div>
-                    </div>
-
                     ))}
                 </div>
             </main>

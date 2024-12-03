@@ -4,18 +4,29 @@ import { MovieDetailsProps } from '../Interface/interfacemovie';
 
 const MovieDetails: React.FC = () => {
     const location = useLocation();
+    const { movie_id } = useParams<{ movie_id: string }>();
+    
+    // Extracting movie and selectedRegion from location.state
     const { movie, selectedRegion } = location.state as {
         movie: Partial<MovieDetailsProps>;
         selectedRegion: string;
     };
-    
-    const { movie_id } = useParams<{ movie_id: string }>();
+
+    // Log movie_id to the console
+    console.log("Received movie_id:", movie_id);
+
     const [apiMovieDetails, setApiMovieDetails] = useState<MovieDetailsProps | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchMovieDetails = async () => {
+            if (!movie_id) {
+                setError("Movie ID is missing.");
+                setLoading(false);
+                return;
+            }
+
             try {
                 const response = await fetch(`http://localhost:3000/movie-details/${movie_id}`);
                 if (!response.ok) {
@@ -23,12 +34,11 @@ const MovieDetails: React.FC = () => {
                 }
 
                 const data = await response.json();
-
                 
                 const mappedData: MovieDetailsProps = {
                     title: data.movie_name || movie.title || 'Untitled',
-                    posterUrl: data.poster_link || movie.posterUrl || '',
-                    genre: data.genre?.length ? data.genre : movie.genre || [],
+                    posterUrl: data.poster_link || movie.posterUrl || 'default-poster-url.jpg', // Provide a default image URL
+                    genre: data.genre?.length ? data.genre : movie.genre || ['No genre available'],
                     producer: data.producer || movie.producer || 'Unknown',
                     director: data.director || movie.director || 'Unknown',
                     youtubeEmbedLink: data.trailer_link || movie.youtubeEmbedLink || '',
@@ -53,13 +63,17 @@ const MovieDetails: React.FC = () => {
             {!loading && !error && apiMovieDetails && (
                 <>
                     <div className="w-full h-[600px] mb-4 pb-5">
-                        <iframe
-                            src={apiMovieDetails.youtubeEmbedLink}
-                            title={`${apiMovieDetails.title} Trailer`}
-                            className="w-full h-full rounded-lg"
-                            allow="autoplay; encrypted-media;"
-                            allowFullScreen
-                        />
+                        {apiMovieDetails.youtubeEmbedLink ? (
+                            <iframe
+                                src={apiMovieDetails.youtubeEmbedLink}
+                                title={`${apiMovieDetails.title} Trailer`}
+                                className="w-full h-full rounded-lg"
+                                allow="autoplay; encrypted-media;"
+                                allowFullScreen
+                            />
+                        ) : (
+                            <div className="text-center text-gray-300">No trailer available</div>
+                        )}
                     </div>
                     <div className="flex flex-col md:flex-row bg-gradient-to-b from-gray-900 to-black shadow-lg rounded-lg">
                         <div className="md:w-1/4 p-4">

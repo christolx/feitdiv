@@ -23,20 +23,20 @@ const App: React.FC = () => {
     <Router>
       <Header userName={userName} setUserName={setUserName} />
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/upcoming" element={<UpcomingPage />} />
-        <Route path="/theaters" element={<TheatersPage />} />
-        <Route path="/faq" element={<FAQPage />} />
-        <Route path="/login" element={<LoginPage setUserName={setUserName} />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/nowplaying" element={<NowPlayingPage />} />
-        <Route path="/reservation/:movie_id" element={<ReservationPage />} />
-        <Route path="/showtime/:theater_id" element={<ShowtimesPage />} />
-        <Route path="/paymenthistory" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
-        <Route path="/mytickets" element={<ProtectedRoute><MyTicketPage /></ProtectedRoute>} />
-        <Route path="/moviedetails" element={<MovieDetails />} />
+  <Route path="/" element={<HomePage />} />
+  <Route path="/upcoming" element={<UpcomingPage />} />
+  <Route path="/theaters" element={<TheatersPage />} />
+  <Route path="/faq" element={<FAQPage />} />
+  <Route path="/login" element={<LoginPage setUserName={setUserName} />} />
+  <Route path="/register" element={<RegisterPage />} />
+  <Route path="/nowplaying" element={<NowPlayingPage />} />
+  <Route path="/reservation/:movie_id" element={<ReservationPage />} />
+  <Route path="/showtime/:theater_id" element={<ShowtimesPage />} />
+  <Route path="/paymenthistory" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
+  <Route path="/mytickets" element={<ProtectedRoute><MyTicketPage /></ProtectedRoute>} />
+  <Route path="/moviedetails/:movie_id" element={<MovieDetails />} /> 
+</Routes>
 
-      </Routes>
       <Footer />
     </Router>
   );
