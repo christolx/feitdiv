@@ -91,6 +91,7 @@ const Payments: React.FC = () => {
 
     const handleCancel = async (ticketId: number) => {
         try {
+            console.log(ticketId);
             const response = await fetchWithToken(`http://localhost:3000/TicketGroup/delete-group-ticket/${ticketId}`, {
                 method: 'DELETE',
             });
