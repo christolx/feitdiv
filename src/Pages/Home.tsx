@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState('Alsut');
+  const [selectedRegion, setSelectedRegion] = useState('Choose Your Region');
   const [regions, setRegions] = useState<string[]>([]); 
 
   const navigate = useNavigate();
