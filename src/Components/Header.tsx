@@ -24,56 +24,26 @@ const Header: React.FC<HeaderProps> = ({ userName, setUserName }) => {
     return (
         <header className="bg-black backdrop-blur-sm sticky top-0 w-full z-50">
             <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
-                <Link to="/" className="text-2xl font-bold text-green-400 hover:text-green-300 transition-colors no-underline">
-                    CineWave
-                </Link>
+            <Link to="/" className="text-3xl font-bold text-green-400 hover:text-green-300 transition-colors no-underline font-jaro">
+                 CineWave
+            </Link>
                 
-               
                 <div className="flex items-center space-x-8">
-                    <ul className="flex space-x-6 list-none">
-                        {['Now Playing', 'Upcoming', 'Theaters'].map((item) => (
-                            <li key={item}>
-                                <Link
-                                    to={`/${item.toLowerCase().replace(' ', '')}`}
-                                    className="text-gray-300 hover:text-green-400 transition-colors no-underline px-4 py-2 rounded-full border border-transparent hover:border-green-400"
-                                >
-                                    {item}
-                                </Link>
-                            </li>
-                        ))}
-                        {userName && (
-                            <>
-                                <li>
-                                    <Link
-                                        to="/payment-history"
-                                        className="text-gray-300 hover:text-green-400 transition-colors no-underline px-4 py-2 rounded-full border border-transparent hover:border-green-400"
-                                    >
-                                        Payment History
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link
-                                        to="/myticket"
-                                        className="text-gray-300 hover:text-green-400 transition-colors no-underline px-4 py-2 rounded-full border border-transparent hover:border-green-400"
-                                    >
-                                        My Tickets
-                                    </Link>
-                                </li>
-                            </>
-                        )}
-                        
-                        <li>
+                <ul className="flex space-x-6 list-none">
+                    {['Now Playing', 'Upcoming', 'Theaters', 'Payment History', 'My Tickets', 'FAQ'].map((item) => (
+                        <li key={item}>
                             <Link
-                                to="/faq"
+                                to={`/${item.toLowerCase().replace(' ', '')}`}
                                 className="text-gray-300 hover:text-green-400 transition-colors no-underline px-4 py-2 rounded-full border border-transparent hover:border-green-400"
                             >
-                                FAQ
+                                {item}
                             </Link>
                         </li>
-                    </ul>
+                    ))}
+                </ul>
+
                 </div>
 
-               
                 <div className="flex items-center space-x-4">
                     {userName ? (
                         <>

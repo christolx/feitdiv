@@ -131,6 +131,15 @@ const RegisterPage: React.FC = () => {
                 >
                     {isLoading ? 'Registering...' : 'Register'}
                 </button>
+                <p className="mt-6 text-center">
+                    <span className="text-green-700 text-sm ml-20">Already have an aacount? </span>
+                    <button
+                        onClick={() => navigate('/login')}
+                        className="text-green-500 font-semibold hover:underline"
+                    >
+                        Login here
+                    </button>
+                </p>
             </form>
         </div>
 

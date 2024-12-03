@@ -1,5 +1,3 @@
-// src/Components/Footer.tsx
-
 import React from 'react';
 
 const Footer: React.FC = () => {
@@ -13,7 +11,7 @@ const Footer: React.FC = () => {
                     <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Facebook</a>
                     <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Twitter</a>
                 </div>
-                <p className="mt-4 text-gray-500 text-sm">© 2024 Your Company Name. All rights reserved.</p>
+                <p className="mt-4 text-gray-500 text-sm">© 2024 CineWave. All rights reserved.</p>
             </div>
         </footer>
     );

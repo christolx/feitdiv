@@ -6,7 +6,8 @@ const TheatersPage: React.FC = () => {
     const [theaters, setTheaters] = useState<Theater[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedCity, setSelectedCity] = useState('Alsut');
+    const [selectedCity, setSelectedCity] = useState<string>('');
+    const [locations, setLocations] = useState<string[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,6 +19,14 @@ const TheatersPage: React.FC = () => {
                 }
                 const data: Theater[] = await response.json();
                 setTheaters(data);
+
+               
+                const uniqueLocations = Array.from(new Set(data.map((theater) => {
+                   
+                    const location = theater.location.split(',')[0]; 
+                    return location;
+                })));
+                setLocations(uniqueLocations);
                 setLoading(false);
             } catch (err: any) {
                 setError(err.message);
@@ -28,17 +37,16 @@ const TheatersPage: React.FC = () => {
         fetchTheaters();
     }, []);
 
-    const filteredTheaters = theaters.filter((theater) => theater.location === selectedCity);
+    const filteredTheaters = theaters.filter((theater) => theater.location.startsWith(selectedCity));
 
-    // Function to handle button click and navigate to Showtimes page
     const handleViewShowtimes = (theater_id: number) => {
-        navigate(`/showtime/${theater_id}`);  // Navigate to ShowtimesPage with theater_id
+        navigate(`/showtime/${theater_id}`);
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-            <main className="container mx-auto px-4 pt-24">
-                <h1 className="text-2xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+            <main className="flex-grow container mx-auto px-4 pt-10">
+                <h1 className="text-center text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
                     Movie Theaters
                 </h1>
 
@@ -48,9 +56,15 @@ const TheatersPage: React.FC = () => {
                         onChange={(e) => setSelectedCity(e.target.value)}
                         className="px-4 py-2 rounded-full bg-gray-800 text-gray-300 border border-gray-700 focus:border-green-400 outline-none"
                     >
-                        <option value="Alsut">Alsut</option>
-                        <option value="Kemanggisan">Kemanggisan</option>
-                        <option value="Malang">Malang</option>
+                        {locations.length > 0 ? (
+                            locations.map((location) => (
+                                <option key={location} value={location}>
+                                    {location}
+                                </option>
+                            ))
+                        ) : (
+                            <option value="">Loading locations...</option>
+                        )}
                     </select>
                 </div>
 
@@ -67,7 +81,7 @@ const TheatersPage: React.FC = () => {
                                 </div>
                                 <button
                                     className="px-6 py-2 bg-green-500 rounded-full hover:bg-green-400 transition-colors"
-                                    onClick={() => handleViewShowtimes(theater.theater_id)}  // Handle click
+                                    onClick={() => handleViewShowtimes(theater.theater_id)}
                                 >
                                     View Showtimes
                                 </button>

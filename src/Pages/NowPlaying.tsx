@@ -4,9 +4,10 @@ import { Movie, Showtime, Theater } from '../Interface/interfacemovie';
 
 const NowPlayingPage: React.FC = () => {
     const [movies, setMovies] = useState<Movie[]>([]);
-    const [showtimes, setShowtimes] = useState<Showtime[]>([]); 
+    const [showtimes, setShowtimes] = useState<Showtime[]>([]);
     const [theaters, setTheaters] = useState<Theater[]>([]);
     const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+    const [dimensions, setDimensions] = useState<string[]>([]); // State for dimensions
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -44,8 +45,12 @@ const NowPlayingPage: React.FC = () => {
                 setFilteredMovies(moviesData);
                 setLoading(false);
 
+                
+                const uniqueDimensions = [...new Set(moviesData.map((movie: Movie) => movie.dimension))];
+                setDimensions(['All', ...uniqueDimensions]); 
+                
                 const uniqueRegions = [...new Set(theatersData.map((theater: Theater) => theater.location))];
-                setRegions(uniqueRegions); 
+                setRegions(uniqueRegions);
             } catch (err: any) {
                 setError(err.message);
                 setLoading(false);
@@ -95,33 +100,9 @@ const NowPlayingPage: React.FC = () => {
         navigate(`${location.pathname}?${queryParams.toString()}`, { replace: true });
     };
 
-    // Image processing function
-    const processImage = (imageUrl: string): string => {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        const img = new Image();
-        
-        img.src = imageUrl;
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context?.drawImage(img, 0, 0);
-            
-            // Example processing: Apply a simple sharpening or resizing
-            // Adjust the width/height or apply any filters as needed
-            // Example: resizing to a higher resolution or sharpen filter can go here
-
-            // Convert the canvas content to a base64 string to display
-            const processedImageUrl = canvas.toDataURL();
-            return processedImageUrl;
-        };
-
-        return imageUrl; // Default to original if processing isn't done yet
-    };
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-            <main className="container mx-auto px-4 pt-24">
+            <main className="container mx-auto px-4 pt-5 pb-20">
                 <div className="flex justify-center mb-8">
                     <input
                         type="text"
@@ -138,24 +119,19 @@ const NowPlayingPage: React.FC = () => {
 
                 <div className="flex justify-center space-x-8 mb-8">
                     <div className="flex space-x-4">
-                        <button
-                            onClick={() => setSelectedDimension('2D')}
-                            className={`px-4 py-2 rounded-full ${selectedDimension === '2D' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-300'} hover:bg-green-500 hover:text-white transition-colors`}
-                        >
-                            2D
-                        </button>
-                        <button
-                            onClick={() => setSelectedDimension('3D')}
-                            className={`px-4 py-2 rounded-full ${selectedDimension === '3D' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-300'} hover:bg-green-500 hover:text-white transition-colors`}
-                        >
-                            3D
-                        </button>
-                        <button
-                            onClick={() => setSelectedDimension('All')}
-                            className={`px-4 py-2 rounded-full ${selectedDimension === 'All' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-300'} hover:bg-green-500 hover:text-white transition-colors`}
-                        >
-                            All
-                        </button>
+                        {dimensions.map((dimension) => (
+                            <button
+                                key={dimension}
+                                onClick={() => setSelectedDimension(dimension)}
+                                className={`px-4 py-2 rounded-full ${
+                                    selectedDimension === dimension
+                                        ? 'bg-green-500 text-white'
+                                        : 'bg-gray-800 text-gray-300'
+                                } hover:bg-green-500 hover:text-white transition-colors`}
+                            >
+                                {dimension}
+                            </button>
+                        ))}
                     </div>
 
                     <select
@@ -191,29 +167,46 @@ const NowPlayingPage: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                     {filteredMovies.map((movie) => (
                         <div
-                            key={movie.movie_id}
-                            className="bg-gray-800/50 rounded-lg overflow-hidden  transition-all flex flex-col"
+                        key={movie.movie_id}
+                        className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
+                    >
+                        <div
+                            className="relative w-full cursor-pointer"
+                            style={{ paddingBottom: '150%' }}
+                            onClick={() =>
+                                navigate(`/reservation/${movie.movie_id}?region=${encodeURIComponent(selectedRegion)}`)
+                            }
                         >
-                            <div
-                                className="relative w-full h-[350px] bg-black cursor-pointer"
-                                onClick={() => navigate(`/reservation/${movie.movie_id}`)}
-                            >
-                                <img
-                                    src={processImage(movie.poster_link)}
-                                    alt={movie.movie_name}
-                                    className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
-                                />
+                            <img
+                                src={movie.poster_link}
+                                alt={movie.movie_name}
+                                className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                            />
+                    
+                           
+                            <div className="absolute top-2 left-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                {movie.age_rating}
                             </div>
-                            <div className="p-4 flex-grow">
-                            <h3 className="text-lg font-semibold mb-2 cursor-pointer"
-                                onClick={() => navigate(`/reservation/${movie.movie_id}`)}
->                               {movie.movie_name}
-                            </h3>
-                                <p className="text-gray-400 mb-2">Rating: {movie.age_rating}</p>
-                                <p className="text-gray-400 mb-2">Duration: {movie.duration} minutes</p>
-                                <p className="text-gray-400 mb-2">Dimension: {movie.dimension}</p>
+                    
+                           
+                            <div className="absolute top-2 right-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                {movie.dimension}
                             </div>
                         </div>
+                    
+                        
+                        <div className="p-4 flex-grow text-center">
+                            <h3
+                                className="text-lg font-semibold cursor-pointer text-gray-200 hover:text-white"
+                                onClick={() =>
+                                    navigate(`/reservation/${movie.movie_id}?region=${encodeURIComponent(selectedRegion)}`)
+                                }
+                            >
+                                {movie.movie_name}
+                            </h3>
+                        </div>
+                    </div>
+                    
                     ))}
                 </div>
             </main>

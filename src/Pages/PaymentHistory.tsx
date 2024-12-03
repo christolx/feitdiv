@@ -1,22 +1,22 @@
-import React, {useState, useEffect} from 'react';
-import {fetchWithToken} from '../utils/api';
-
-interface PaymentDetails {
-    order_id: string;
-    seat_number: string;
-    payment_method: string;
-    payment_status: string;
-    amount: number;
-    payment_date: string;
-    va_number: string;
-}
+import React, { useState, useEffect } from 'react';
+import { fetchWithToken } from '../utils/api';
+import { PaymentDetails } from '../Interface/interfacemovie';
+import { useNavigate } from 'react-router-dom';
 
 const Payments: React.FC = () => {
     const [payments, setPayments] = useState<PaymentDetails[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const fetchPayments = async () => {
+        const token = localStorage.getItem('accessToken');
+        
+        if (!token) {
+            navigate('/login'); 
+            return;
+        }
+
         try {
             const response = await fetchWithToken('http://localhost:3000/payments/payments', {
                 method: 'GET',
@@ -26,10 +26,17 @@ const Payments: React.FC = () => {
             });
 
             if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('Anda belum mempunyai riwayat pembayaran');
+                }
                 throw new Error('Gagal mengambil data pembayaran');
             }
 
             const data = await response.json();
+            if (data.length === 0) {
+                throw new Error('Anda belum mempunyai riwayat pembayaran');
+            }
+
             setPayments(data);
         } catch (error) {
             console.error('Error:', error);
@@ -41,7 +48,7 @@ const Payments: React.FC = () => {
 
     useEffect(() => {
         fetchPayments();
-    }, [payments]);
+    }, []);
 
     const refreshPaymentStatus = async (orderId: string): Promise<string | null> => {
         try {
@@ -50,7 +57,7 @@ const Payments: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({order_id: orderId}),
+                body: JSON.stringify({ order_id: orderId }),
             });
 
             if (!response.ok) {
@@ -102,7 +109,7 @@ const Payments: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-t from-gray-900 to-black py-8">
             <div className="container mx-auto px-6 lg:px-12">
-                <h2 className="text-4xl font-bold text-center text-white mb-8">Payment History</h2>
+                <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-green-400 to-blue-500 mb-8 bg-clip-text text-transparent">Payment History</h2>
 
                 <div className="flex justify-center mb-6">
                     <button
@@ -138,7 +145,7 @@ const Payments: React.FC = () => {
                                 <tr
                                     key={payment.order_id}
                                     className="bg-gradient-to-r from-gray-700 to-gray-800 hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 hover:scale-[1.03] hover:shadow-2xl transition-all duration-300 transform"
-                                    style={{transformOrigin: 'center'}}
+                                    style={{ transformOrigin: 'center' }}
                                 >
                                     <td className="px-6 py-4 border-b-2 border-gray-600 rounded-l-lg">{payment.order_id}</td>
                                     <td className="px-6 py-4 border-b-2 border-gray-600">{payment.seat_number}</td>

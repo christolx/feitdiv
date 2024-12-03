@@ -37,11 +37,11 @@ const ShowtimesPage: React.FC = () => {
                     Movie Showtimes
                 </h1>
 
-                {/* Show Loading or Error */}
+               
                 {loading && <p className="text-center text-gray-300">Loading showtimes...</p>}
                 {error && <p className="text-center text-red-500">{error}</p>}
 
-                {/* Showtimes List */}
+               
                 <div className="space-y-8">
                     {showtimes.length > 0 ? (
                         showtimes.map((showtime) => (

@@ -65,7 +65,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({vaNumber, orderId, onClose, 
     if (!isOpen) return null;
 
     const handleClose = () => {
-        navigate('/payment-history');
+        navigate('/paymenthistory');
         onClose();
     };
 

@@ -227,71 +227,86 @@ const SeatLayout: React.FC<SeatLayoutProps> = ({ showtime_id, onClose }) => {
 
     
     return (
-        <div className="min-h-8 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col items-center p-8 relative">
-            <button
-                onClick={onClose}
-                className="absolute top-4 left-4 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded"
-            >
-                ← Back
-            </button>
-
-            <h2 className="text-2xl font-semibold mb-6">Select Your Seats</h2>
-
-            <div className="flex flex-col items-center mb-6">
-                <div className="w-[800px] bg-gray-700 h-20 mb-8 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">Screen</span>
+        <div className="min-h-8 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col items-center p-8 relative mt-[-100px]">
+        <button
+          onClick={onClose}
+          className="absolute top-4 left-4 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded"
+        >
+          ← Back
+        </button>
+      
+        <h2 className="text-2xl font-semibold mb-6">Select Your Seats</h2>
+      
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-[800px] bg-gray-700 h-20 mb-8 flex items-center justify-center">
+            <span className="text-2xl font-bold text-white">Screen</span>
+          </div>
+      
+          <div className="flex space-x-10 w-full max-w-4xl">
+            <div className="flex-1">
+              {rows.map((row) => (
+                <div key={row} className="flex space-x-2 mb-2">
+                  {renderSeatSection(1, 6, row)}
                 </div>
-
-                <div className="flex space-x-10 w-full max-w-4xl">
-                    <div className="flex-1">
-                        {rows.map((row) => (
-                            <div key={row} className="flex space-x-2 mb-2">
-                                {renderSeatSection(1, 6, row)}
-                            </div>
-                        ))}
-                    </div>
-                    <div className="w-16 rounded-full bg-round flex items-center justify-center">
-                        <div className="text-white text-sm font-semibold flex flex-col gap-5 mb-3">
-                            {rows.map((row) => (
-                                <span key={row} className="my-2">
-                                    {row}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="flex-1">
-                        {rows.map((row) => (
-                            <div key={row} className="flex space-x-2 mb-2">
-                                {renderSeatSection(7, 12, row)}
-                            </div>
-                        ))}
-                    </div>
+              ))}
+            </div>
+            <div className="w-16 rounded-full bg-round flex items-center justify-center">
+              <div className="text-white text-sm font-semibold flex flex-col gap-5 mb-3">
+                {rows.map((row) => (
+                  <span key={row} className="my-2">
+                    {row}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex-1">
+              {rows.map((row) => (
+                <div key={row} className="flex space-x-2 mb-2">
+                  {renderSeatSection(7, 12, row)}
                 </div>
+              ))}
             </div>
-
-            <div className="text-center">
-            <button
-                onClick={handleConfirmSelection}
-                disabled={isSubmitting || selectedSeats.size === 0}
-                className={`px-6 py-3 rounded-lg text-lg ${
-                    isSubmitting || selectedSeats.size === 0
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-green-500 hover:bg-green-600'
-                }`}
-            >
-                {isSubmitting ? 'Processing...' : 'Confirm Selection'}
-            </button>
-
-                
-  
-            {isModalOpen && groupTicketId && (
-                <TicketModal
-                    ticketId={groupTicketId.toString()}
-                    onClose={() => setIsModalOpen(false)}
-                />
-            )}
-            </div>
+          </div>
         </div>
+        <div className="mb-6">
+          <div className="flex justify-center gap-6 mt-3">
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-gray-400 rounded mr-2"></div>
+              <span className="text-sm">Available</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-red-600 rounded mr-2"></div>
+              <span className="text-sm">Reserved</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-green-500 rounded mr-2"></div>
+              <span className="text-sm">Selected</span>
+            </div>
+          </div>
+        </div>
+      
+        <div className="text-center">
+          <button
+            onClick={handleConfirmSelection}
+            disabled={isSubmitting || selectedSeats.size === 0}
+            className={`px-6 py-3 rounded-lg text-lg ${
+              isSubmitting || selectedSeats.size === 0
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-green-500 hover:bg-green-600'
+            }`}
+          >
+            {isSubmitting ? 'Processing...' : 'Confirm Selection'}
+          </button>
+      
+          {isModalOpen && groupTicketId && (
+            <TicketModal
+              ticketId={groupTicketId.toString()}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
+        </div>
+      </div>
+      
     );
 };
 

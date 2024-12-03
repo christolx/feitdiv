@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {fetchWithToken} from '../utils/api';
 import PaymentModal from './PaymentModal';
+import moviePoster from '../assets/pexels-tima-miroshnichenko-7991158.jpg';
 
 interface TicketModalProps {
     ticketId: string;
@@ -119,19 +120,19 @@ const TicketModal: React.FC<TicketModalProps> = ({ticketId, onClose}) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="relative bg-gray-900 rounded-3xl shadow-2xl w-11/12 max-w-3xl overflow-hidden">
-                {/* Background Image */}
+              
                 <div className="relative">
                     <img
-                        src={'src/assets/pexels-tima-miroshnichenko-7991158.jpg'}
+                        src={moviePoster}
                         alt={ticket?.movie_name || 'Movie Poster'}
                         className="w-full h-64 object-cover"
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-50"></div>
                 </div>
 
-                {/* Modal Content */}
+                
                 <div className="relative px-6 py-8 text-white">
-                    {/* Close Button */}
+                    
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 text-white text-3xl font-bold"
@@ -139,38 +140,38 @@ const TicketModal: React.FC<TicketModalProps> = ({ticketId, onClose}) => {
 
                     </button>
 
-                    {/* Ticket Info */}
+                    
                     <div className="space-y-6">
                         <h2 className="text-4xl font-bold text-white text-center">
                             {ticket?.movie_name || 'Loading...'}
                         </h2>
 
                         <div className="space-y-4">
-                            {/* Theater */}
+                           
                             <div className="flex justify-between text-lg">
                                 <span className="font-semibold">Theater:</span>
                                 <span>{ticket?.theater_name || 'N/A'}</span>
                             </div>
 
-                            {/* Showtime */}
+                            
                             <div className="flex justify-between text-lg">
                                 <span className="font-semibold">Showtime:</span>
                                 <span>{ticket?.showtime || 'N/A'}</span>
                             </div>
 
-                            {/* Seat */}
+
                             <div className="flex justify-between text-lg">
                                 <span className="font-semibold">Seat Number:</span>
                                 <span>{ticket?.seat_number || 'N/A'}</span>
                             </div>
 
-                            {/* Price */}
+                            
                             <div className="flex justify-between text-lg">
                                 <span className="font-semibold">Ticket Price:</span>
                                 <span className="text-green-600 font-semibold">Rp{ticket?.ticket_price || 0}</span>
                             </div>
 
-                            {/* Status */}
+                           
                             <div className="flex justify-between text-lg">
                                 <span className="font-semibold">Status:</span>
                                 <span
@@ -181,9 +182,9 @@ const TicketModal: React.FC<TicketModalProps> = ({ticketId, onClose}) => {
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
+                   
                     <div className="flex justify-center space-x-4 mt-8">
-                        {/* Pay Now Button */}
+                        
                         <button
                             onClick={handlePayment}
                             className="px-8 py-3 bg-green-600 text-white rounded-full shadow-lg transform transition duration-300 hover:bg-green-500 hover:scale-105"
@@ -191,7 +192,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ticketId, onClose}) => {
                         >
                             Pay Now
                         </button>
-                        {/* Close Button */}
+                       
                         <button
                             onClick={onClose}
                             className="px-8 py-3 bg-red-600 text-white rounded-full shadow-lg transform transition duration-300 hover:bg-red-500 hover:scale-105"
@@ -201,12 +202,12 @@ const TicketModal: React.FC<TicketModalProps> = ({ticketId, onClose}) => {
                     </div>
                 </div>
 
-                {/* Error Message (Tinggi ditingkatkan) */}
+             
                 {error && (
                     <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white text-center py-4">
                         <p className="text-sm">{error}</p>
                         <button
-                            onClick={handleCloseError} // Gunakan handleCloseError untuk menutup modal dan error
+                            onClick={handleCloseError} 
                             className="mt-2 px-4 py-1 bg-red-700 text-white rounded-full text-sm"
                         >
                             Close
@@ -215,7 +216,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ticketId, onClose}) => {
                 )}
             </div>
 
-            {/* Payment Modal */}
+           
             {showPaymentModal && paymentVaNumber && (
                 <PaymentModal
                     vaNumber={paymentVaNumber}

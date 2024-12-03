@@ -55,7 +55,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ setUserName }) => {
             const profileData = await profileResponse.json();
             localStorage.setItem('userName', profileData.full_name);
 
-            // Update the userName state in the parent component
             setUserName(profileData.full_name);
 
             navigate('/');
@@ -64,6 +63,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ setUserName }) => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    
+    const handleRegisterClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault(); 
+        navigate('/register');
     };
 
     return (
@@ -105,13 +110,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ setUserName }) => {
                     {isLoading ? 'Logging in...' : 'Login'}
                 </button>
 
-                <p className="mt-6 text-center">
-                    <span className="text-green-700 text-sm ml-20">Belum punya akun? </span>
+                <p className="mt-6 text-center ">
+                    <span className="text-green-700 text-sm ml-15">Don't have an account? </span>
                     <button
-                        onClick={() => navigate('/register')}
+                        onClick={handleRegisterClick} 
                         className="text-green-500 font-semibold hover:underline"
                     >
-                        Daftar di sini
+                        Register Here
                     </button>
                 </p>
             </form>

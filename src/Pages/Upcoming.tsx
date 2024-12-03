@@ -25,16 +25,37 @@ const UpcomingPage: React.FC = () => {
         fetchMovies();
     }, []);
 
+   
+    const processImage = (imageUrl: string): string => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.src = imageUrl;
+        img.onload = () => {
+            
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context?.drawImage(img, 0, 0);
+
+          
+            const processedImageUrl = canvas.toDataURL();
+            return processedImageUrl;
+        };
+
+       
+        return imageUrl;
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-            <main className="container mx-auto px-4 pt-24">
-                <h1 className="text-2xl font-bold mb-10 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+            <main className="container mx-auto px-4 pt-10 pb-20">
+                <h1 className="text-center text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
                     Upcoming Movies
                 </h1>
 
                 {loading && <p className="text-center text-gray-300">Loading movies...</p>}
                 {error && <p className="text-center text-red-500">{error}</p>}
-
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-10">
                     {upcomingMovies.map((movie) => (
@@ -44,7 +65,7 @@ const UpcomingPage: React.FC = () => {
                         >
                             <div className="relative w-full h-[450px] bg-black">
                                 <img
-                                    src={movie.poster_link}
+                                    src={processImage(movie.poster_link)} 
                                     alt={movie.movie_name}
                                     className="absolute inset-0 w-full h-full object-contain"
                                 />
@@ -54,7 +75,6 @@ const UpcomingPage: React.FC = () => {
                                 <p className="text-gray-400">
                                     Release Date: {new Date(movie.release_date).toLocaleDateString()}
                                 </p>
-                              
                             </div>
                         </div>
                     ))}

@@ -10,17 +10,17 @@ const FAQPage: React.FC = () => {
         {
             id: 2,
             question: "Can I cancel my booking?",
-            answer: "Yes, you can cancel your booking up to 2 hours before the showtime. The refund will be processed to your original payment method within 3-5 business days."
+            answer: "You can cancel by pressing cancel button before proceeding to pay now. If you try to cancel booking after the process, you can't cancel"
         },
         {
             id: 3,
             question: "What payment methods are accepted?",
-            answer: "We accept various payment methods including credit/debit cards, e-wallets, and bank transfers. All transactions are secure and encrypted."
+            answer: "We accepted MidTrans as our payment method"
         },
         {
             id: 4,
             question: "How do I get my tickets?",
-            answer: "After successful booking, you'll receive an e-ticket via email. You can also access your tickets through your account on our website or mobile app."
+            answer: "After successful payment via MidTrans, you can see your tickets on MyTicket page"
         }
     ];
 

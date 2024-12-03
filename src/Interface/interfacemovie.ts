@@ -41,4 +41,25 @@ export interface Movie {
     user_id: number;
     reservation_status: 'Reserved' | 'Available';
   }
+
+  export interface PaymentDetails {
+    order_id: string;
+    seat_number: string;
+    payment_method: string;
+    payment_status: string;
+    amount: number;
+    payment_date: string;
+    va_number: string;
+}
+
+export interface Ticket {
+  ticket_id: number;
+  movie_name: string;
+  poster_link: string;
+  theater_name: string;
+  showtime: string;
+  seat_number: string;
+  ticket_price: number;
+}
+
   
