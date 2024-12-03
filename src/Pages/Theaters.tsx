@@ -45,8 +45,8 @@ const TheatersPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-            <main className="flex-grow container mx-auto px-4 pt-10">
-                <h1 className="text-center text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+            <main className="flex-grow container mx-auto px-4 pt-10 pb-20">
+                <h1 className="text-center text-4xl font-bold mb-8 text-white bg-clip-text text-transparent">
                     Movie Theaters
                 </h1>
 

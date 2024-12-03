@@ -25,28 +25,6 @@ const UpcomingPage: React.FC = () => {
         fetchMovies();
     }, []);
 
-   
-    const processImage = (imageUrl: string): string => {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        const img = new Image();
-        
-        img.src = imageUrl;
-        img.onload = () => {
-            
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context?.drawImage(img, 0, 0);
-
-          
-            const processedImageUrl = canvas.toDataURL();
-            return processedImageUrl;
-        };
-
-       
-        return imageUrl;
-    };
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
             <main className="container mx-auto px-4 pt-10 pb-20">
@@ -57,23 +35,42 @@ const UpcomingPage: React.FC = () => {
                 {loading && <p className="text-center text-gray-300">Loading movies...</p>}
                 {error && <p className="text-center text-red-500">{error}</p>}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-10">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 mt-10">
                     {upcomingMovies.map((movie) => (
                         <div
                             key={movie.movie_id}
-                            className="bg-gray-800/50 rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all w-[200px] sm:w-[250px] lg:w-[280px] xl:w-[300px]"
+                            className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
                         >
-                            <div className="relative w-full h-[450px] bg-black">
+                            {/* Movie Poster */}
+                            <div className="relative w-full cursor-pointer" style={{ paddingBottom: '150%' }}>
                                 <img
-                                    src={processImage(movie.poster_link)} 
+                                    src={movie.poster_link}
                                     alt={movie.movie_name}
-                                    className="absolute inset-0 w-full h-full object-contain"
+                                    className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
                                 />
+
+                               
+                                <div className="absolute top-2 left-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                    Rating: {movie.age_rating}
+                                </div>
+
+                               
+                                <div className="absolute top-2 right-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                    {movie.dimension || 'N/A'}
+                                </div>
                             </div>
-                            <div className="p-4">
-                                <h3 className="text-xl font-semibold mb-2">{movie.movie_name}</h3>
-                                <p className="text-gray-400">
-                                    Release Date: {new Date(movie.release_date).toLocaleDateString()}
+
+                        
+                            <div className="p-4 text-center">
+                                <h3
+                                    className="text-lg font-semibold cursor-pointer text-gray-200 hover:text-white"
+                                >
+                                    {movie.movie_name}
+                                </h3>
+
+                           
+                                <p className="text-gray-400 mt-2">
+                                    {new Date(movie.release_date).toLocaleDateString()}
                                 </p>
                             </div>
                         </div>

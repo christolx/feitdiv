@@ -42,15 +42,17 @@ const NowPlayingPage: React.FC = () => {
                 setMovies(moviesData);
                 setShowtimes(showtimesData);
                 setTheaters(theatersData);
-                setFilteredMovies(moviesData);
                 setLoading(false);
 
-                
                 const uniqueDimensions = [...new Set(moviesData.map((movie: Movie) => movie.dimension))];
-                setDimensions(['All', ...uniqueDimensions]); 
-                
+                setDimensions(['All', ...uniqueDimensions]);
+
                 const uniqueRegions = [...new Set(theatersData.map((theater: Theater) => theater.location))];
                 setRegions(uniqueRegions);
+
+               
+                applyFilters(moviesData, showtimesData, theatersData);
+
             } catch (err: any) {
                 setError(err.message);
                 setLoading(false);
@@ -58,25 +60,33 @@ const NowPlayingPage: React.FC = () => {
         };
 
         fetchData();
-    }, []);
+    }, []); 
 
-    useEffect(() => {
-        let filtered = movies;
+    
+    const applyFilters = (
+        moviesData: Movie[],
+        showtimesData: Showtime[],
+        theatersData: Theater[]
+    ) => {
+        let filtered = moviesData;
 
+      
         if (searchQuery) {
             filtered = filtered.filter((movie) =>
                 movie.movie_name.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
+        
         if (selectedDimension !== 'All') {
             filtered = filtered.filter((movie) => movie.dimension === selectedDimension);
         }
 
+        
         if (selectedRegion) {
-            const regionTheaters = theaters.filter((theater) => theater.location === selectedRegion);
+            const regionTheaters = theatersData.filter((theater) => theater.location === selectedRegion);
             const regionTheaterIds = regionTheaters.map((theater) => theater.theater_id);
-            const regionShowtimes = showtimes.filter((showtime) =>
+            const regionShowtimes = showtimesData.filter((showtime) =>
                 regionTheaterIds.includes(showtime.theater_id)
             );
             const regionMovieIds = regionShowtimes.map((showtime) => showtime.movie_id);
@@ -84,6 +94,11 @@ const NowPlayingPage: React.FC = () => {
         }
 
         setFilteredMovies(filtered);
+    };
+
+    useEffect(() => {
+        
+        applyFilters(movies, showtimes, theaters);
     }, [searchQuery, selectedDimension, selectedRegion, movies, theaters, showtimes]);
 
     const updateUrlParams = (newSearchQuery?: string, newRegion?: string) => {
@@ -167,46 +182,42 @@ const NowPlayingPage: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                     {filteredMovies.map((movie) => (
                         <div
-                        key={movie.movie_id}
-                        className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
-                    >
-                        <div
-                            className="relative w-full cursor-pointer"
-                            style={{ paddingBottom: '150%' }}
-                            onClick={() =>
-                                navigate(`/reservation/${movie.movie_id}?region=${encodeURIComponent(selectedRegion)}`)
-                            }
+                            key={movie.movie_id}
+                            className="bg-gray-800/50 rounded-lg overflow-hidden transition-all flex flex-col"
                         >
-                            <img
-                                src={movie.poster_link}
-                                alt={movie.movie_name}
-                                className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
-                            />
-                    
-                           
-                            <div className="absolute top-2 left-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
-                                {movie.age_rating}
-                            </div>
-                    
-                           
-                            <div className="absolute top-2 right-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
-                                {movie.dimension}
-                            </div>
-                        </div>
-                    
-                        
-                        <div className="p-4 flex-grow text-center">
-                            <h3
-                                className="text-lg font-semibold cursor-pointer text-gray-200 hover:text-white"
+                            <div
+                                className="relative w-full cursor-pointer"
+                                style={{ paddingBottom: '150%' }}
                                 onClick={() =>
                                     navigate(`/reservation/${movie.movie_id}?region=${encodeURIComponent(selectedRegion)}`)
                                 }
                             >
-                                {movie.movie_name}
-                            </h3>
+                                <img
+                                    src={movie.poster_link}
+                                    alt={movie.movie_name}
+                                    className="absolute inset-0 w-full h-full object-cover rounded-t-lg"
+                                />
+
+                                <div className="absolute top-2 left-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                    {movie.age_rating}
+                                </div>
+
+                                <div className="absolute top-2 right-2 bg-gray-900/70 text-white text-sm px-4 py-2 rounded-md">
+                                    {movie.dimension}
+                                </div>
+                            </div>
+
+                            <div className="p-4 flex-grow text-center">
+                                <h3
+                                    className="text-lg font-semibold cursor-pointer text-gray-200 hover:text-white"
+                                    onClick={() =>
+                                        navigate(`/reservation/${movie.movie_id}?region=${encodeURIComponent(selectedRegion)}`)
+                                    }
+                                >
+                                    {movie.movie_name}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
-                    
                     ))}
                 </div>
             </main>

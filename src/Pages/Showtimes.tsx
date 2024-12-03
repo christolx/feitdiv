@@ -32,7 +32,7 @@ const ShowtimesPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-            <main className="container mx-auto px-4 pt-24">
+            <main className="container mx-auto px-4 pt-24 pb-20">
                 <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
                     Movie Showtimes
                 </h1>

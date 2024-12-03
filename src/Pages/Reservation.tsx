@@ -6,7 +6,7 @@ import SeatLayout from '../Components/CinemaLayout';
 const ReservationPage: React.FC = () => {
   const { movie_id } = useParams<{ movie_id: string }>();
   const location = useLocation();
-  const navigate = useNavigate(); // Initialize navigate hook
+  const navigate = useNavigate(); 
   const [region, setRegion] = useState<string>('');
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
   const [filteredTheaters, setFilteredTheaters] = useState<Theater[]>([]);
