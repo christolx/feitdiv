@@ -10,17 +10,17 @@ const FAQPage: React.FC = () => {
         {
             id: 2,
             question: "Can I cancel my booking?",
-            answer: "You can cancel by pressing cancel button before proceeding to pay now. If you try to cancel booking after the process, you can't cancel"
+            answer: "You can cancel booked tickets via the cancel button next to each row on PaymentHistory."
         },
         {
             id: 3,
             question: "What payment methods are accepted?",
-            answer: "We accepted MidTrans as our payment method"
+            answer: "We accepted BCA virtual account as our payment method"
         },
         {
             id: 4,
             question: "How do I get my tickets?",
-            answer: "After successful payment via MidTrans, you can see your tickets on MyTicket page"
+            answer: "After successful payment via BCA, you can see your tickets on MyTicket page"
         }
     ];
 
