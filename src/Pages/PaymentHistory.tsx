@@ -42,7 +42,7 @@ const Payments: React.FC = () => {
 
     useEffect(() => {
         fetchPayments();
-    }, [payments]);
+    }, []);
 
     const refreshPaymentStatus = async (orderId: string): Promise<string | null> => {
         try {
@@ -59,6 +59,7 @@ const Payments: React.FC = () => {
             }
 
             const data = await response.json();
+            fetchPayments();
             return data.transaction_status;
         } catch (error) {
             console.error('Error refreshing payment status:', error);
@@ -82,6 +83,7 @@ const Payments: React.FC = () => {
                     payment_status: updatedStatuses[index] || payment.payment_status,
                 }))
             );
+            fetchPayments();
         } catch (error) {
             console.error('Error refreshing all statuses:', error);
         } finally {
